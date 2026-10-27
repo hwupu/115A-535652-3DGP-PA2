@@ -23,10 +23,12 @@
 - **2026-10-27**: The PO quit Unity, so Claude batch-ran `Sprint0Setup` on the real project: run 1 created / removed everything (0 errors, 0 warnings, wiring ✓), run 2 changed nothing. Empty `_Project` folders got a `.gitkeep` (Unity ignores dotfiles) so their `.meta` files aren't orphaned in git.
 - **2026-10-27**: GitHub set up by script, same structure as PA1: public repo `hwupu/115A-535652-3DGP-PA2`, labels (priority / type / owner), one milestone per sprint with due dates, issues generated from the backlog table (each checked: issue = PB + 1), [Project board #4](https://github.com/users/hwupu/projects/4) with Status (PB-00 In Progress, PB-32 Done, rest Todo). No Story Points field (dropped in PA1). Then the initial commit and push.
 
-## Review
-_(at the end of Sprint 0)_
+## Review (2026-10-27)
+- **Sprint goal met.** The PO reviewed the result: "everything is good, keep doing."
+- Done: PB-00 (#1). Repo + LFS public on GitHub, Unity project cleaned and named, 10 ADRs, 33 issues, 6 milestones, Project board #4, tooling ported and verified (compile, setup ×2, build, smoke run).
+- Backlog changes: none. Sprint 1 starts right away (Oct 27) instead of Nov 2, which adds slack before the buffer week.
 
-## Retro
-- Keep:
-- Problem:
-- Try:
+## Retro (drafted by SM, confirmed by PO)
+- **Keep:** decisions before artifacts (15 questions in one round); verifying AI-written setup scripts in a clone before the PO runs them (caught 2 bugs); asking before touching a project the Editor has open.
+- **Problem:** the AI's first cleanup code had two bugs that only showed up in a real run. Fixing one revealed the next.
+- **Try:** keep "run it, fix, run again until a second run is a no-op" as the standard for every setup script.

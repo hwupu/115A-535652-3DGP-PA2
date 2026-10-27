@@ -7,7 +7,7 @@ This file is the source of truth. GitHub mirrors it: Issues + Milestones (one pe
 
 | ID | Issue | User story / item | Acceptance criteria | Marks | Pri | Owner | Sprint | Status |
 |---|---|---|---|---|---|---|---|---|
-| PB-00 | [#1](https://github.com/hwupu/115A-535652-3DGP-PA2/issues/1) | *Setup*: repo, Unity project, docs skeleton, CLAUDE.md, ADRs, Editor tooling, GitHub board | Project opens in 6000.3.26f1; batch compile 0 `error CS`; Product Name "Puzzle Master"; template content removed; first commit pushed to the public repo; issues, milestones and board created | – | Must | Both | 0 | 🟨 |
+| PB-00 | [#1](https://github.com/hwupu/115A-535652-3DGP-PA2/issues/1) | *Setup*: repo, Unity project, docs skeleton, CLAUDE.md, ADRs, Editor tooling, GitHub board | Project opens in 6000.3.26f1; batch compile 0 `error CS`; Product Name "Puzzle Master"; template content removed; first commit pushed to the public repo; issues, milestones and board created | – | Must | Both | 0 | ✅ |
 | PB-01 | [#2](https://github.com/hwupu/115A-535652-3DGP-PA2/issues/2) | As a player I explore a **bounded greybox region** | Ground ~80×80 m with boundary walls; five puzzle sites and monster spots laid out; logical hierarchy (Environment / Gameplay / Cameras / Systems / UI) and naming | – | Must | Both | 1 | ⬜ |
 | PB-02 | [#3](https://github.com/hwupu/115A-535652-3DGP-PA2/issues/3) | As a player I **move with WASD** | Camera-relative WASD on a CharacterController with gravity; smooth acceleration; speed from `config.json`; the player can't leave the region (ADR-0007) | 10 | Must | Claude | 1 | ⬜ |
 | PB-03 | [#4](https://github.com/hwupu/115A-535652-3DGP-PA2/issues/4) | As a player I **look around and turn with the mouse** | Third-person camera behind the player; cursor locked during play; mouse X turns the player, mouse Y pitches the camera (clamped); no clipping through walls; cursor free on intro / win / lose screens (ADR-0007) | (10) | Must | Claude | 1 | ⬜ |
@@ -61,3 +61,4 @@ This file is the source of truth. GitHub mirrors it: Issues + Milestones (one pe
 | 2026-10-27 | Tuning | Timer, scores, speed, HP, damage, spell and heal rates in `config.json`; F5 reloads |
 | 2026-10-27 | Minimap content | Player, puzzles, monsters and dropped items, in distinct colours; M toggles |
 | 2026-10-27 | GitHub | Same setup as PA1: issues per backlog item, sprint milestones, labels, Project board |
+| 2026-10-27 | Sprint 0 Review | Accepted ("everything is good, keep doing"); Sprint 1 starts immediately |
