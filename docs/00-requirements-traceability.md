@@ -15,7 +15,7 @@ Source: `reference/3DGP_PA_02_Instruction.pdf`, marking scheme on p. 2 (the offi
 | | timer display (upper-left, MM:SS, 5 min) | 4 | §8 | PB-05 | ✅ | PO play-test 2026-10-27 (Sprint 1 Review; 15 s config test) |
 | | monster life bars (above the head) | 4 | §3 | PB-12 | ✅ | PO play-test 2026-10-27 (Sprint 2 Review); headless smoke test 15/15 |
 | | win / lose screens | 4 | §10, §11 | PB-06 | ✅ | PO play-test 2026-10-27: lose via timer, win via debug menu; real win via the Final Gate verified in the Sprint 3 Review |
-| 4 | **Audio and visual effects** — background music (starts with gameplay, continues until win / lose) | 5 | §4 | PB-25 | ⬜ | |
+| 4 | **Audio and visual effects** — background music (starts with gameplay, continues until win / lose) | 5 | §4 | PB-25 | 🔄 | `MusicPlayer` (Sprint 4); clone smoke 7/7; PO play-test pending |
 | | hit sound effects (player attacks monster) | 5 | §4 | PB-16 | ✅ | PO play-test 2026-10-27 (Sprint 2 Review); headless smoke test 15/15 |
 | 5 | **Minimap and game management** — minimap (player + puzzle locations) | 5 | §9 | PB-23 | ✅ | PO play-test 2026-10-27 (Sprint 3 Review); built-game smoke test 30/30 |
 | | toggle functionality (M) | 5 | §9 | PB-24 | ✅ | PO play-test 2026-10-27 (Sprint 3 Review); built-game smoke test 30/30 |

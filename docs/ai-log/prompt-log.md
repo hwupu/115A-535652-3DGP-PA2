@@ -106,3 +106,9 @@ Template:
 - **Verification:** setups ×2 (0 changes), renders (labels/bars sharp vs blurred, occlusion, wand idle + swing strip), gameplay smoke 18/18. The smoke test's own cast to `RectTransform` broke on the new bar (test updated, game unchanged).
 - **Open:** credit for the wand model (source / author) → asset-credits.
 - **Reverted (2026-10-28, PO: "should revert the modifications relating to blur text and hp bar"):** the WorldUI overlay camera, the quad life bar and the `LifeBar` changes were removed before the PO ran them (scene and prefabs untouched); labels and HP bars are blurred at a distance again, as before. The wand stays.
+
+## 2026-10-28 · #16 · Sprint 4 start: background music from PA1 · PB-25
+- **Prompt:** "start sprint 4. copy the bgm from PA1."
+- **AI output:** Checked before copying: the track was already in PA2 (brought over with the PA1 assets, ADR-0011), byte-identical to PA1's (same MD5 and `.meta`), committed and credited. So no copy; the work was playback. PA1 played the track on Awake; PA2's spec wants it with gameplay, so a new `MusicPlayer` follows the game state (silent on intro, starts on SPACE, loops, fades out on Win / Lose in unscaled time, since the end screens set `timeScale = 0`). `Sprint4Setup` wires `Systems/Music`; guide with checklist; Sprint 4 opened.
+- **Verification:** clone setup ×2 (second run 0 changes), wiring ✓, 0 errors / 0 warnings, built-game smoke test 7 / 7 (incl. the fade while time is frozen, the Sprint 3 retro's lesson applied up front).
+- **Not verified by AI:** the volume balance against the sound effects → PO play-test.

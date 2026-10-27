@@ -7,7 +7,7 @@ namespace PuzzleMaster.Audio
     /// Plays the sound effects (PB-16). Required by the spec: a **hit sound when the player hits a
     /// monster**. Extra feedback: swing (miss), monster heal, monster recovered, spell cast,
     /// player hit by a spell, item pickup, puzzle progress and puzzle solved.
-    /// Background music comes in Sprint 4 (PB-25).
+    /// Background music has its own source and component: <see cref="MusicPlayer"/> (PB-25).
     /// Any empty clip slot uses a synthesized placeholder tone, so the game is never silent.
     /// Event-driven (GameEvents): gameplay code does not know that audio exists.
     /// </summary>
