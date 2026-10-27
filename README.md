@@ -34,7 +34,8 @@ Keys: `timeLimitSeconds` (300 = 5 min), `recoverMonsterScore`, `solvePuzzleScore
 Some alternatives (player death/respawn, monster self-heal mode) are switched by commenting one marked line: `grep -rn "DEMO TOGGLE" Assets/_Project/Scripts`. See `docs/guides/demo-toggles.md`.
 
 ## Third-party packs not in this repo
-The repo is public, so Unity Asset Store assets are git-ignored and included only in the submitted zip. _(None yet.)_
+The repo is public, so Unity Asset Store assets are git-ignored and included only in the submitted zip. To rebuild from a fresh clone, import them via **Window → Package Manager → My Assets**:
+- **Free Stylized Hand-Painted Skybox** (Unity Asset Store), imported to `Assets/Free Stylized Hand-Painted Skybox/` (`Midnight` material). Without it, Unity shows the default sky.
 All asset credits: `docs/asset-credits.md`.
 
 ## Repository map

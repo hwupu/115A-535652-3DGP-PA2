@@ -18,6 +18,13 @@
 # Keep .meta files for every tracked asset
 !/[Aa]ssets/**/*.meta
 
+# =========================================================
+# Unity Asset Store packs: the Standard EULA forbids publishing them in a
+# public repo. They stay local and go into the submission zip (see README).
+# =========================================================
+/[Aa]ssets/Free Stylized Hand-Painted Skybox/
+/[Aa]ssets/Free Stylized Hand-Painted Skybox.meta
+
 # Crash reports / misc temp
 sysinfo.txt
 mono_crash.*
