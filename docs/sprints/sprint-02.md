@@ -48,6 +48,8 @@ Milestone: [Sprint 2 — Monsters & Combat](https://github.com/hwupu/115A-535652
 
 - **2026-10-27**: PO asked for the ground texture and wall models too. Added to `ThemeSetup`: dirt material (normal map re-imported correctly) on the flat ground; 64 fence segments along the walls, wall cubes kept as invisible colliders. PA1's layout couldn't be reused (fences were children of stretched cubes; the ground mesh was never placed). Verified: run 2 = 0 changes, fence bounds exactly on the wall lines, renders checked.
 
+- **2026-10-27**: PO asked for PA1's lighting + post-processing, the ghost float-and-fade, and trees. Read PA1's actual scene values (not the guide's), copied the profile with its GUID, added the fade (ADR-0014, spec check: no violation) and a tree ring on an extended dirt plane. Verified: setup run 2 = 0 changes; 0 GUID collisions; renders with post-processing; gameplay smoke test **18/18** in a build (new: hold → rise + fade with `M_GhostFade` → gone). One interim test failure was a test-ordering artifact (the player auto-collected the drop while waiting for the fade); the check was moved, not the game changed.
+
 ## Retro (drafted by SM, confirmed by PO)
 - **Keep:** the headless gameplay smoke test before hand-off (15/15 → the PO's checklist passed first time); demo toggles with exact line numbers.
 - **Problem:** greybox markers were mistaken for items. The guide explained them, but the scene didn't.

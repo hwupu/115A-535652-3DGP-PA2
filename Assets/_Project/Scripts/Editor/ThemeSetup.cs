@@ -2,7 +2,9 @@ using System.Linq;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using PuzzleMaster.Core;
 using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.SceneManagement;
 
 namespace PuzzleMaster.EditorTools
@@ -14,7 +16,10 @@ namespace PuzzleMaster.EditorTools
     ///   (only `Model`'s children change, so Monster.model stays linked); collider and life bar fitted.
     /// - Props (Environment/Props/Prop_nn): greybox cubes become tombstones (collider fitted).
     /// - Puzzle sites: two jack-o'-lantern pumpkins + a warm point light each, as night beacons.
-    /// - Night: Midnight skybox, moonlight, ambient colour, fog (PA1's tuned "Midnight look" values).
+    /// - Night: Midnight skybox + PA1's exact lighting (moonlight, flat ambient, purple fog, a faint
+    ///   player fill light) and PA1's post-processing profile (DoF, bloom, colour grading, vignette).
+    /// - Recovered ghosts float up and fade: M_GhostFade template linked into Monster.prefab (ADR-0014).
+    /// - Trees: a ring outside the fence (on extended dirt ground) and two in empty corners inside.
     /// - The red monster-spot discs are hidden (the ghosts stand there now; Sprint 2 retro).
     /// - Ground: the graveyard's tileable dirt texture (+ normal map) on the flat ground plane.
     /// - Walls: PA1 fence models lined up along the four boundary walls; the wall cubes stay as
@@ -32,6 +37,9 @@ namespace PuzzleMaster.EditorTools
         private const string DirtBasePath = Halloween + "/textures/tile_dirt_BaseColor.png";
         private const string DirtNormalPath = Halloween + "/textures/tile_dirt_Normal.png";
         private const string GroundMaterialPath = SetupUtils.ProjectRoot + "/Materials/M_GroundDirt.mat";
+        private const string TreePath = Halloween + "/tree.fbx";
+        private const string FadeMaterialPath = SetupUtils.ProjectRoot + "/Materials/M_GhostFade.mat";
+        private const string PostProfilePath = SetupUtils.ProjectRoot + "/Settings/PostProcess Profile.asset";
         private const string MonsterPrefabPath = Sprint2Setup.PrefabFolder + "/Monster.prefab";
         private const string SkyboxPath = "Assets/Free Stylized Hand-Painted Skybox/Materials/Midnight.mat";
 
@@ -73,7 +81,8 @@ namespace PuzzleMaster.EditorTools
             var tombstone = AssetDatabase.LoadAssetAtPath<GameObject>(TombstonePath);
             var pumpkin = AssetDatabase.LoadAssetAtPath<GameObject>(PumpkinPath);
             var fence = AssetDatabase.LoadAssetAtPath<GameObject>(FencePath);
-            if (ghost == null || tombstone == null || pumpkin == null || fence == null)
+            var tree = AssetDatabase.LoadAssetAtPath<GameObject>(TreePath);
+            if (ghost == null || tombstone == null || pumpkin == null || fence == null || tree == null)
             {
                 u.Warn($"PA1 Halloween models missing under {Halloween}");
                 return Report(u, scene);
@@ -86,6 +95,8 @@ namespace PuzzleMaster.EditorTools
             HideMonsterSpotMarkers(u, scene);
             ApplyDirtGround(u, scene);
             LineWallsWithFences(u, scene, fence);
+            LinkGhostFade(u);
+            AddTrees(u, scene, tree);
             return Report(u, scene);
         }
 
@@ -248,44 +259,80 @@ namespace PuzzleMaster.EditorTools
 
         // ================================================================== Night
 
-        /// <summary>Midnight skybox + PA1's tuned moonlight / ambient / fog. Applied once (skipped when the skybox is already set).</summary>
+        /// <summary>
+        /// PA1's exact night look (read from PA1's Main.unity): Midnight skybox, flat dark ambient,
+        /// purple exponential-squared fog, moonlight, a faint fill light on the player, and PA1's
+        /// post-processing profile on a global Volume (camera post-processing on). Applied once:
+        /// skipped when Environment/PostProcess exists, so your later tuning is kept.
+        /// </summary>
         private static void ApplyNight(SetupUtils u, Scene scene)
         {
-            var skybox = AssetDatabase.LoadAssetAtPath<Material>(SkyboxPath);
-            if (skybox == null)
+            Transform environment = SetupUtils.FindRoot(scene, "Environment");
+            if (environment == null) return;
+            if (environment.Find("PostProcess") != null)
             {
-                u.Warn($"Skybox not found ({SkyboxPath}): it's an Asset Store pack, git-ignored; import it via Package Manager → My Assets");
-                return;
-            }
-            if (RenderSettings.skybox == skybox)
-            {
-                u.Skipped("night look (Midnight skybox already set; lighting left as tuned)");
+                u.Skipped("PA1 night look + post-processing (Environment/PostProcess exists; lighting left as tuned)");
                 return;
             }
 
-            RenderSettings.skybox = skybox;
-            // Ambient from a colour, not the sky: the bright parts of the sky would light the scene like day.
+            var skybox = AssetDatabase.LoadAssetAtPath<Material>(SkyboxPath);
+            if (skybox != null) RenderSettings.skybox = skybox;
+            else u.Warn($"Skybox not found ({SkyboxPath}): an Asset Store pack, git-ignored; import it via Package Manager → My Assets");
+
             RenderSettings.ambientMode = AmbientMode.Flat;
-            RenderSettings.ambientLight = Hex("#1A2238");
+            RenderSettings.ambientLight = new Color(0.0118f, 0.0161f, 0.0392f);
             RenderSettings.reflectionIntensity = 0.3f;
             RenderSettings.fog = true;
             RenderSettings.fogMode = FogMode.ExponentialSquared;
-            RenderSettings.fogColor = Hex("#1C2333");
-            RenderSettings.fogDensity = 0.02f;   // ghosts within aggro range (15 m) stay clearly visible
+            RenderSettings.fogColor = new Color(0.1833f, 0.1098f, 0.2f);
+            RenderSettings.fogDensity = 0.02f;
 
-            Light sun = SetupUtils.FindRoot(scene, "Environment")?.GetComponentsInChildren<Light>(true)
-                .FirstOrDefault(l => l.type == LightType.Directional);
-            if (sun != null)
+            Light moon = environment.GetComponentsInChildren<Light>(true).FirstOrDefault(l => l.type == LightType.Directional);
+            if (moon != null)
             {
-                Undo.RecordObject(sun, "Setup");
-                Undo.RecordObject(sun.transform, "Setup");
-                sun.color = Hex("#8FA8FF");
-                sun.intensity = 0.5f;
-                sun.shadows = LightShadows.Soft;
-                sun.shadowStrength = 0.6f;
-                sun.transform.rotation = Quaternion.Euler(25f, -40f, 0f);
+                Undo.RecordObject(moon, "Setup");
+                Undo.RecordObject(moon.transform, "Setup");
+                moon.color = new Color(0.5608f, 0.6588f, 1f);
+                moon.intensity = 0.5f;
+                moon.shadows = LightShadows.Soft;
+                moon.shadowStrength = 0.6f;
+                moon.transform.rotation = Quaternion.Euler(25f, -40f, 0f);
             }
-            u.Linked("night look: Midnight skybox, moonlight, ambient #1A2238, fog 0.02 (PA1 values)");
+
+            // PA1's faint white fill light that travels with the player (keeps the witch readable at night).
+            Transform player = SetupUtils.FindRoot(scene, "Gameplay")?.Find("Player");
+            if (player != null && player.Find("FillLight") == null)
+            {
+                var fill = new GameObject("FillLight").AddComponent<Light>();
+                Undo.RegisterCreatedObjectUndo(fill.gameObject, "Setup");
+                fill.transform.SetParent(player, false);
+                fill.transform.localPosition = new Vector3(0f, 1f, 0.57f);
+                fill.type = LightType.Point;
+                fill.color = Color.white;
+                fill.intensity = 0.05f;
+                fill.range = 10f;
+                fill.shadows = LightShadows.None;
+                fill.gameObject.layer = player.gameObject.layer;
+            }
+
+            var profile = AssetDatabase.LoadAssetAtPath<VolumeProfile>(PostProfilePath);
+            var volumeGo = new GameObject("PostProcess");
+            Undo.RegisterCreatedObjectUndo(volumeGo, "Setup");
+            volumeGo.transform.SetParent(environment, false);
+            var volume = volumeGo.AddComponent<Volume>();
+            volume.isGlobal = true;
+            volume.sharedProfile = profile;
+            if (profile == null) u.Warn($"{PostProfilePath} missing: Volume created without a profile");
+
+            Camera main = SetupUtils.FindRoot(scene, "Cameras")?.GetComponentsInChildren<Camera>(true).FirstOrDefault(c => c.CompareTag("MainCamera"));
+            if (main != null)
+            {
+                UniversalAdditionalCameraData data = main.GetUniversalAdditionalCameraData();
+                Undo.RecordObject(data, "Setup");
+                data.renderPostProcessing = true;
+            }
+            u.Linked("PA1 night look: Midnight skybox, flat ambient, purple fog 0.02, moonlight 0.5, player fill light, " +
+                     "post-processing Volume (DoF 15–45 m, bloom, colour grading, white balance, vignette), camera post on");
         }
 
         private static void HideMonsterSpotMarkers(SetupUtils u, Scene scene)
@@ -404,7 +451,118 @@ namespace PuzzleMaster.EditorTools
             }
         }
 
-        private static Color Hex(string hex) => ColorUtility.TryParseHtmlString(hex, out Color c) ? c : Color.magenta;
+        // ================================================================== Fade + trees
+
+        /// <summary>Creates M_GhostFade (transparent URP Lit, normal map + emission) and links it into Monster.prefab.</summary>
+        private static void LinkGhostFade(SetupUtils u)
+        {
+            var material = AssetDatabase.LoadAssetAtPath<Material>(FadeMaterialPath);
+            if (material == null)
+            {
+                material = new Material(Shader.Find("Universal Render Pipeline/Lit")) { name = "M_GhostFade" };
+                MaterialUtility.MakeTransparent(material);
+                // Enabling the keywords on the asset keeps those transparent variants in builds (PA1 ADR-0010).
+                material.EnableKeyword("_NORMALMAP");
+                material.EnableKeyword("_EMISSION");
+                material.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive;
+                AssetDatabase.CreateAsset(material, FadeMaterialPath);
+                u.Created($"{FadeMaterialPath} (URP Lit, Transparent, normal map + emission)");
+            }
+            GameObject root = PrefabUtility.LoadPrefabContents(MonsterPrefabPath);
+            try
+            {
+                var monster = root.GetComponent<Monsters.Monster>();
+                var so = new SerializedObject(monster);
+                SerializedProperty template = so.FindProperty("fadeMaterialTemplate");
+                if (template.objectReferenceValue != null)
+                {
+                    u.Skipped("Monster.prefab fade template");
+                    return;
+                }
+                template.objectReferenceValue = material;
+                so.ApplyModifiedPropertiesWithoutUndo();
+                PrefabUtility.SaveAsPrefabAsset(root, MonsterPrefabPath);
+                u.Linked("Monster.prefab: Fade Material Template → M_GhostFade (recovered ghosts float up and fade)");
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(root);
+            }
+        }
+
+        /// <summary>
+        /// A ring of trees outside the fence, on a larger dirt plane (so the area beyond the bars isn't empty),
+        /// plus two trees with trunk colliders in empty corners inside. Deterministic layout (fixed seed).
+        /// </summary>
+        private static void AddTrees(SetupUtils u, Scene scene, GameObject tree)
+        {
+            Transform environment = SetupUtils.FindRoot(scene, "Environment");
+            if (environment == null || environment.Find("Trees") != null)
+            {
+                if (environment != null) u.Skipped("Environment/Trees");
+                return;
+            }
+
+            // Outer ground: same dirt, slightly below the play ground, no collider (unreachable).
+            var dirt = AssetDatabase.LoadAssetAtPath<Material>(GroundMaterialPath);
+            GameObject outer = GameObject.CreatePrimitive(PrimitiveType.Plane);
+            Undo.RegisterCreatedObjectUndo(outer, "Setup");
+            outer.name = "OuterGround";
+            outer.transform.SetParent(environment, false);
+            outer.transform.localPosition = new Vector3(0f, -0.02f, 0f);
+            outer.transform.localScale = new Vector3(16f, 1f, 16f);   // 160 × 160 m
+            Object.DestroyImmediate(outer.GetComponent<Collider>());
+            if (dirt != null)
+            {
+                var outerDirt = new Material(dirt) { name = "M_GroundDirtOuter" };
+                outerDirt.SetTextureScale("_BaseMap", new Vector2(160f / DirtTileSize, 160f / DirtTileSize));
+                string outerPath = SetupUtils.ProjectRoot + "/Materials/M_GroundDirtOuter.mat";
+                if (AssetDatabase.LoadAssetAtPath<Material>(outerPath) == null) AssetDatabase.CreateAsset(outerDirt, outerPath);
+                outer.GetComponent<Renderer>().sharedMaterial = AssetDatabase.LoadAssetAtPath<Material>(outerPath);
+            }
+
+            Transform trees = new GameObject("Trees").transform;
+            Undo.RegisterCreatedObjectUndo(trees.gameObject, "Setup");
+            trees.SetParent(environment, false);
+            var random = new System.Random(42);
+            float Range(float min, float max) => min + (float)random.NextDouble() * (max - min);
+
+            // Outside ring: along each side of a 100 m square, every ~10 m, jittered.
+            int outside = 0;
+            for (int side = 0; side < 4; side++)
+            {
+                for (float along = -50f; along < 50f; along += 10f)
+                {
+                    float a = along + Range(-3f, 3f), d = Range(46f, 54f);
+                    Vector3 p = side switch
+                    {
+                        0 => new Vector3(a, 0f, d),
+                        1 => new Vector3(a, 0f, -d),
+                        2 => new Vector3(d, 0f, a),
+                        _ => new Vector3(-d, 0f, a),
+                    };
+                    var slot = new GameObject($"Tree_Out_{++outside:00}").transform;
+                    slot.SetParent(trees, false);
+                    slot.position = p;
+                    PlaceModel(tree, slot, "Model", Range(6.5f, 9.5f), Range(0f, 360f));
+                }
+            }
+
+            // Inside: two corners that are free of puzzle sites, monsters, props and the player start.
+            Vector3[] inside = { new Vector3(-34f, 0f, 34f), new Vector3(34f, 0f, -34f) };
+            for (int i = 0; i < inside.Length; i++)
+            {
+                var slot = new GameObject($"Tree_In_{i + 1}").transform;
+                slot.SetParent(trees, false);
+                slot.position = inside[i];
+                PlaceModel(tree, slot, "Model", 8f, Range(0f, 360f));
+                var trunk = slot.gameObject.AddComponent<CapsuleCollider>();
+                trunk.center = new Vector3(0f, 2f, 0f);
+                trunk.height = 4f;
+                trunk.radius = 0.5f;
+            }
+            u.Created($"Environment/Trees: {outside} outside the fence + {inside.Length} inside (trunk colliders); OuterGround 160 × 160 m dirt");
+        }
 
         private static string Report(SetupUtils u, Scene scene)
         {

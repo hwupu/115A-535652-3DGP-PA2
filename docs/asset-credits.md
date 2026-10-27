@@ -12,6 +12,9 @@ The repo is **public** (ADR-0001): only commit assets whose license allows redis
 - "Boomerang" (https://skfb.ly/6tvtu) by Muhammad Ari Kurniawan is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
 - Rig and animation clips (Idle, Walk, Run, Jump, ThrowBoomerang) for the Little Witch were made by the PO in Blender with help from an AI agent during PA1. The MeleeSwing clip (PA2) was derived from them by a Blender Python script written by Claude (`Tools/Blender/make_melee_swing.py`, ADR-0012).
 
+## Lighting / post-processing
+- The post-processing profile (`Settings/PostProcess Profile.asset`) and the night lighting values were made by the PO in PA1 and reused (own work, no third-party licence).
+
 ## Skybox
 - "Free Stylized Hand-Painted Skybox" from the Unity Asset Store, under the Unity Asset Store Standard EULA. Not in the public repo (git-ignored), but included in the submission zip. _(Publisher name / URL: to fill in from the Asset Store page.)_
 

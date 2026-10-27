@@ -67,5 +67,6 @@ This file is the source of truth. GitHub mirrors it: Issues + Milestones (one pe
 | 2026-10-27 | Gap animations (e.g. melee swing) | **Script a melee swing** in Blender headless (no MCP) — PO: "try to add melee swing" |
 | 2026-10-27 | Sprint 2 Review | Accepted ("checklist is complete"). **Sprint 3 paused** ("we are ahead") |
 | 2026-10-27 | Melee swing | Accepted ("swing is good") |
+| 2026-10-27 | PA1 lighting + post, trees, ghost float-away | PA1's exact lighting + post profile; tree ring outside the fence + 2 inside; recovered ghosts hold 1 s, then float up and fade (ADR-0014: **not a spec violation** — the drop and the recovery are unchanged; `Stay` remains as an Inspector option) |
 | 2026-10-27 | Halloween swap | Ghosts as monsters, tombstones as obstacles, skybox + night look; pumpkins = **puzzle-site beacons** (SM proposal, ADR-0013). Open: Artifact pickup as a jack-o'-lantern? |
 | 2026-10-27 | Sprint 1 scope (SM proposal, within "keep doing") | `ScoreManager` + HUD score pulled into Sprint 1 because the end screens show the final score; PB-15 keeps the scoring sources (Sprint 2) |

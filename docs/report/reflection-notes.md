@@ -19,6 +19,8 @@ Report outline: 1) Use of AI tools · 2) Adoption of Scrum · 3) Lessons (short)
 - (2026-10-27) Documentation from an earlier AI agent (PA1's Blender handoff) was wrong about the export scaling; trusting it produced a 100× bug. Handoff docs need the same verification as code.
 - (2026-10-27) Multimodal verification: the AI rendered frames in Blender and screenshots in Unity and looked at them, which caught a vanished sword that every numeric log line had missed.
 - (2026-10-27) Not every anomaly is a bug: the AI saw red ghosts in its own test renders and, instead of "fixing" the material, ran controlled experiments until the cause (first-frame texture upload in batch rendering) was clear. Evidence before action applies to the AI's own tooling too.
+- (2026-10-27) A failing test is information, not a verdict: the AI's own new wait in the test caused an auto-pickup, and the neighbouring check proved the behaviour was correct. Reading failures in context avoided "fixing" working game code.
+- (2026-10-27) Documentation drift between projects: PA1's guide said blue fog, PA1's scene said purple. The AI went to the source of truth (the scene file) when asked to "bring over" the look.
 
 ## Scrum — observations
 - (2026-10-27) Sprint 0 as a real sprint: decisions before artifacts. Fifteen PO questions answered in one round set the backlog, the ADRs and the sprint plan.

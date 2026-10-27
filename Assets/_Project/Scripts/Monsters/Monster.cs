@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using PuzzleMaster.Combat;
 using PuzzleMaster.Core;
 using PuzzleMaster.Items;
@@ -12,6 +14,8 @@ namespace PuzzleMaster.Monsters
     /// - Damaged: flashes red (green when it heals). At 0 HP it is **recovered**, not killed:
     ///   it stops moving and casting, turns to the recovered colour, announces
     ///   GameEvents.MonsterRecovered (+100 score, sound) and drops its puzzle item (if any).
+    ///   With <see cref="RecoveredStyle.FloatAway"/> (default, ADR-0014) it then holds that pose for a moment,
+    ///   rises, spins and fades out (the released spirit), and finally deactivates.
     /// Colours are applied with a MaterialPropertyBlock on the Model's renderers (base colour and, for
     /// glowing materials such as the ghost's, the emission colour), so any model works (theme-agnostic)
     /// and the shared materials are never modified.
@@ -47,6 +51,19 @@ namespace PuzzleMaster.Monsters
         [SerializeField] private Vector3 dropOffset = new Vector3(0f, 0f, 1.5f);
         [Tooltip("Tint once recovered (purified).")]
         [SerializeField] private Color recoveredColor = new Color(1f, 0.95f, 0.75f);
+        [Tooltip("Stay: remains in place, purified. FloatAway: after a short hold, rises and fades out (ADR-0014).")]
+        [SerializeField] private RecoveredStyle recoveredStyle = RecoveredStyle.FloatAway;
+        [Tooltip("FloatAway: seconds the purified pose is held before rising (so it reads as 'recovered', not 'killed').")]
+        [SerializeField] private float floatHoldSeconds = 1f;
+        [Tooltip("FloatAway: seconds the rise and fade take.")]
+        [SerializeField] private float floatDuration = 2f;
+        [Tooltip("FloatAway: total rise height in metres.")]
+        [SerializeField] private float floatHeight = 3f;
+        [Tooltip("FloatAway: spin around the vertical axis (degrees per second).")]
+        [SerializeField] private float floatSpin = 120f;
+        [Tooltip("FloatAway: transparent URP Lit template (M_GhostFade, made by Setup → Halloween Theme). " +
+                 "Referencing it keeps the transparent shader variant in builds. Empty = converted at runtime (may not fade in builds).")]
+        [SerializeField, OptionalReference] private Material fadeMaterialTemplate;
 
         [Header("Feedback")]
         [SerializeField] private Color hitColor = new Color(1f, 0.25f, 0.25f);
@@ -62,6 +79,7 @@ namespace PuzzleMaster.Monsters
         private Vector3[] patrolPoints;
         private int patrolIndex;
         private float flashTimer;
+        private bool floatStarted;
 
         public bool IsRecovered { get; private set; }
         /// <summary>The item this monster drops (for the minimap / HUD later), or null.</summary>
@@ -177,6 +195,82 @@ namespace PuzzleMaster.Monsters
                 return;
             }
             Instantiate(drop.PickupPrefab, transform.TransformPoint(dropOffset), Quaternion.identity);
+        }
+
+        // Recover() returns early when there is no drop, so the float-away starts from its own callback.
+        private void LateUpdate()
+        {
+            if (IsRecovered && recoveredStyle == RecoveredStyle.FloatAway && !floatStarted)
+            {
+                floatStarted = true;
+                StartCoroutine(FloatAway());
+            }
+        }
+
+        /// <summary>
+        /// The released spirit: hold the purified pose, then rise with a spin while the glow and the
+        /// colour fade to nothing, then deactivate. Uses per-monster transparent material copies
+        /// (MaterialUtility, ported from PA1's ghost fade) so other ghosts are unaffected.
+        /// </summary>
+        private IEnumerator FloatAway()
+        {
+            yield return new WaitForSeconds(floatHoldSeconds);
+
+            // Nothing to bump into or target while it rises.
+            foreach (Collider c in GetComponentsInChildren<Collider>()) c.enabled = false;
+            List<Material> fades = PrepareFadeMaterials();
+            Vector3 start = transform.position;
+
+            for (float t = 0f; t < floatDuration; t += Time.deltaTime)
+            {
+                float k = t / floatDuration;
+                // SmoothStep eases the rise in and out; alpha follows the same curve down.
+                float eased = Mathf.SmoothStep(0f, 1f, k);
+                transform.position = start + Vector3.up * (floatHeight * eased);
+                transform.Rotate(0f, floatSpin * Time.deltaTime, 0f, Space.World);
+                float alpha = 1f - eased;
+                foreach (Material m in fades)
+                {
+                    m.SetColor(MaterialUtility.BaseColor, new Color(recoveredColor.r, recoveredColor.g, recoveredColor.b, alpha));
+                    m.SetColor(MaterialUtility.EmissionColor, recoveredColor * (tintGlow * alpha));
+                }
+                yield return null;
+            }
+            foreach (Material m in fades) Destroy(m);   // runtime copies: free them
+            gameObject.SetActive(false);
+        }
+
+        /// <summary>Swaps every model renderer to a transparent copy (template + the original textures).</summary>
+        private List<Material> PrepareFadeMaterials()
+        {
+            if (fadeMaterialTemplate == null)
+                Debug.LogWarning($"{name}: no Fade Material Template; converting materials at runtime (may not fade in a build).", this);
+            var fades = new List<Material>();
+            foreach (Renderer r in renderers)
+            {
+                r.SetPropertyBlock(null);   // the tint block would override the fading colour
+                r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;   // a fading ghost casts no shadow
+                Material[] materials = r.materials;   // per-renderer instances
+                for (int i = 0; i < materials.Length; i++)
+                {
+                    Material fade;
+                    if (fadeMaterialTemplate != null)
+                    {
+                        fade = new Material(fadeMaterialTemplate);
+                        MaterialUtility.CopyLitProperties(materials[i], fade);
+                    }
+                    else
+                    {
+                        fade = new Material(materials[i]);
+                        MaterialUtility.MakeTransparent(fade);
+                    }
+                    Destroy(materials[i]);   // the instance created by r.materials
+                    materials[i] = fade;
+                    fades.Add(fade);
+                }
+                r.materials = materials;
+            }
+            return fades;
         }
 
         private void Tint(Color color)
