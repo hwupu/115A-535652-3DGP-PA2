@@ -48,7 +48,7 @@ The puzzles are built **on the five `PuzzleSite_*` objects wherever they are now
 
 ## Your artifact model
 `Prefabs/Greybox/Pickup_Artifact.prefab` is the prefab the Artifact monster drops. To use your own model:
-1. Open the prefab (double-click). Inside `Model`, delete `Base` and `Orb`.
+1. Open the prefab (double-click). Inside `Model`, delete `Base` and `Orb` (keep `Glow`, the item light).
 2. Drag your model into `Model` as a child; scale it to about 0.4–0.6 m and centre it on `Model` (the pickup bobs and spins around it). Colliders on your model are not needed (the root's trigger sphere does the pickup).
 3. Save the prefab. The pedestal shows a copy of whatever is inside `Model`, so it updates automatically. Optionally, change the colour in `Settings/Items/Item_Artifact` (HUD text and map diamond).
 

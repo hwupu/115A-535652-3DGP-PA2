@@ -84,6 +84,29 @@ namespace PuzzleMaster.EditorTools
             return material;
         }
 
+        /// <summary>
+        /// Makes a URP Lit material glow with <paramref name="emission"/> (HDR allowed); returns false if it already did.
+        /// Order matters: setting a colour lets Unity re-validate the material, and URP then turns _EMISSION
+        /// off while the GI flags still say "emissive is black" (the default). So the flags come first,
+        /// then the colour, then the keyword. (Found when emission set in a setup run was not saved.)
+        /// </summary>
+        public bool EnsureEmission(Material m, Color emission)
+        {
+            int id = Shader.PropertyToID("_EmissionColor");
+            if (m.IsKeywordEnabled("_EMISSION") && ((Vector4)(m.GetColor(id) - emission)).sqrMagnitude < 1e-6f
+                && m.globalIlluminationFlags == MaterialGlobalIlluminationFlags.RealtimeEmissive)
+            {
+                Skipped($"emission on {m.name}");
+                return false;
+            }
+            m.globalIlluminationFlags = MaterialGlobalIlluminationFlags.RealtimeEmissive;
+            m.SetColor(id, emission);
+            m.EnableKeyword("_EMISSION");
+            EditorUtility.SetDirty(m);
+            Linked($"emission on {m.name}");
+            return true;
+        }
+
         /// <summary>Returns the index of a named user layer, creating it in the first free slot (8–31) if needed.</summary>
         public int EnsureLayer(string layerName)
         {

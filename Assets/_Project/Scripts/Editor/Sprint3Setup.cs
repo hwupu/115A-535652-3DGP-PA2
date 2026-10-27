@@ -149,12 +149,7 @@ namespace PuzzleMaster.EditorTools
         /// <summary>Turns on emission (white) so a MaterialPropertyBlock can make it glow in any colour.</summary>
         private static Material EnsureEmissive(SetupUtils u, Material m)
         {
-            if (m.IsKeywordEnabled("_EMISSION")) return m;
-            m.EnableKeyword("_EMISSION");
-            m.SetColor(MaterialUtility.EmissionColor, Color.white);
-            m.globalIlluminationFlags = MaterialGlobalIlluminationFlags.None;
-            EditorUtility.SetDirty(m);
-            u.Linked($"emission on {m.name}");
+            u.EnsureEmission(m, Color.white);
             return m;
         }
 

@@ -21,6 +21,8 @@ namespace PuzzleMaster.EditorTools
     /// - Recovered ghosts float up and fade: M_GhostFade template linked into Monster.prefab (ADR-0014).
     /// - Trees: a ring outside the fence (on extended dirt ground) and two in empty corners inside.
     /// - Spells glow: an HDR unlit purple core (bloom), a small purple point light, a fading additive trail.
+    /// - Pickups glow: emission in the item colour (bloom) + a small light in the item's Model (so the copy
+    ///   placed on a puzzle glows too).
     /// - The red monster-spot discs are hidden (the ghosts stand there now; Sprint 2 retro).
     /// - Ground: the graveyard's tileable dirt texture (+ normal map) on the flat ground plane.
     /// - Walls: PA1 fence models lined up along the four boundary walls; the wall cubes stay as
@@ -103,6 +105,7 @@ namespace PuzzleMaster.EditorTools
             LinkGhostFade(u);
             AddTrees(u, scene, tree);
             GlowSpells(u);
+            GlowPickups(u);
             return Report(u, scene);
         }
 
@@ -566,6 +569,59 @@ namespace PuzzleMaster.EditorTools
             AssetDatabase.CreateAsset(material, SpellTrailMaterialPath);
             u.Created($"{SpellTrailMaterialPath} (URP Particles/Unlit, additive)");
             return material;
+        }
+
+        /// <summary>
+        /// Makes the Key, Crystal and Artifact glow: each item material gets emission in the item colour
+        /// (× 0.95: past the 0.9 bloom threshold for the bright channel, without clipping to white), and the pickup's Model gets a
+        /// small point light in that colour. The light sits inside Model, so the copy a puzzle shows on
+        /// its slot (ADR-0009) glows as well.
+        /// </summary>
+        private static void GlowPickups(SetupUtils u)
+        {
+            foreach (string itemName in new[] { "Key", "Crystal", "Artifact" })
+            {
+                var item = AssetDatabase.LoadAssetAtPath<Items.ItemDefinition>($"{Sprint2Setup.ItemFolder}/Item_{itemName}.asset");
+                if (item == null || item.PickupPrefab == null)
+                {
+                    u.Warn($"Item_{itemName} or its pickup prefab not found: run Setup → Sprint 2 first");
+                    continue;
+                }
+                Color c = item.Color;
+                string path = AssetDatabase.GetAssetPath(item.PickupPrefab);
+                GameObject root = PrefabUtility.LoadPrefabContents(path);
+                try
+                {
+                    Transform model = root.GetComponent<Items.PuzzleItem>().Visual;
+                    if (model == null) { u.Warn($"{path}: PuzzleItem has no visual"); continue; }
+                    // Emission on the greybox materials only (named M_<item>); a PO model keeps its own look.
+                    foreach (Renderer r in model.GetComponentsInChildren<Renderer>(true))
+                        foreach (Material m in r.sharedMaterials)
+                            if (m != null && m.name == $"M_{itemName}")
+                                u.EnsureEmission(m, new Color(c.r * 0.95f, c.g * 0.95f, c.b * 0.95f, 1f));
+
+                    if (model.Find("Glow") != null)
+                    {
+                        u.Skipped($"{root.name}/Model/Glow");
+                        continue;
+                    }
+                    var glow = new GameObject("Glow").AddComponent<Light>();
+                    glow.transform.SetParent(model, false);
+                    glow.type = LightType.Point;
+                    glow.color = c;
+                    glow.range = 3f;
+                    glow.intensity = 1f;
+                    // Below the item, so it lights the ground more than the item itself (which would wash out).
+                    glow.transform.localPosition = new Vector3(0f, -0.4f, 0f);
+                    glow.shadows = LightShadows.None;
+                    PrefabUtility.SaveAsPrefabAsset(root, path);
+                    u.Created($"{root.name}/Model/Glow ({itemName}-coloured point light)");
+                }
+                finally
+                {
+                    PrefabUtility.UnloadPrefabContents(root);
+                }
+            }
         }
 
         // ================================================================== Fade + trees

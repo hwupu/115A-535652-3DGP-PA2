@@ -28,6 +28,8 @@ Report outline: 1) Use of AI tools · 2) Adoption of Scrum · 3) Lessons (short)
 - (2026-10-27) Idempotent setup scripts must survive the PO's own reorganisation: a "skip if `Environment/PostProcess` exists" check broke silently once the PO moved the object into a `Lighting` folder, and a rerun would have duplicated the post volume and reset tuned lighting. Identify existing work by component, not by path — the same rule CLAUDE.md already states for gameplay code.
 - (2026-10-27) Rendering knowledge matters for "make it glow": without tonemapping, HDR colours clip to white. The AI only noticed by looking at its own render; the numbers alone looked right.
 
+- (2026-10-27) A workaround is not a diagnosis: for the spells the AI side-stepped lost emission with an unlit material; when the same need came back for the pickups it ran small controlled experiments and found the real cause (call order vs URP's material validation). The fix then also repaired an earlier, unnoticed victim (the puzzle orbs).
+
 ## Scrum — observations
 - (2026-10-27) Sprint 0 as a real sprint: decisions before artifacts. Fifteen PO questions answered in one round set the backlog, the ADRs and the sprint plan.
 - (2026-10-27) Carrying a retro across projects: PA1 dropped story points as overhead for a solo project; PA2 starts without them, and keeps the parts that paid off (backlog as source of truth, DoD, decisions log, board).
