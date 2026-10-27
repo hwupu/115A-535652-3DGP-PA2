@@ -1,0 +1,18 @@
+{
+    "timeLimitSeconds": 300.0,
+    "recoverMonsterScore": 100,
+    "solvePuzzleScore": 200,
+    "moveSpeed": 5.0,
+    "mouseSensitivity": 0.15,
+    "playerMaxHealth": 100.0,
+    "attackDamage": 25.0,
+    "attackRange": 2.5,
+    "attackCooldown": 0.5,
+    "monsterMaxHealth": 100.0,
+    "monsterAggroRange": 15.0,
+    "spellInterval": 2.5,
+    "spellSpeed": 8.0,
+    "spellDamage": 10.0,
+    "monsterHealInterval": 10.0,
+    "monsterHealAmount": 20.0
+}
