@@ -16,6 +16,9 @@ namespace PuzzleMaster.EditorTools
     /// - Puzzle sites: two jack-o'-lantern pumpkins + a warm point light each, as night beacons.
     /// - Night: Midnight skybox, moonlight, ambient colour, fog (PA1's tuned "Midnight look" values).
     /// - The red monster-spot discs are hidden (the ghosts stand there now; Sprint 2 retro).
+    /// - Ground: the graveyard's tileable dirt texture (+ normal map) on the flat ground plane.
+    /// - Walls: PA1 fence models lined up along the four boundary walls; the wall cubes stay as
+    ///   invisible colliders, so movement and the camera behave exactly as before.
     /// Menu: Puzzle Master → Setup → Halloween Theme
     /// Batch: -executeMethod PuzzleMaster.EditorTools.ThemeSetup.RunBatch
     /// </summary>
@@ -25,11 +28,18 @@ namespace PuzzleMaster.EditorTools
         private const string GhostPath = Halloween + "/ghost.fbx";
         private const string TombstonePath = Halloween + "/tombstone.fbx";
         private const string PumpkinPath = Halloween + "/pumpkin.fbx";
+        private const string FencePath = Halloween + "/fence.fbx";
+        private const string DirtBasePath = Halloween + "/textures/tile_dirt_BaseColor.png";
+        private const string DirtNormalPath = Halloween + "/textures/tile_dirt_Normal.png";
+        private const string GroundMaterialPath = SetupUtils.ProjectRoot + "/Materials/M_GroundDirt.mat";
         private const string MonsterPrefabPath = Sprint2Setup.PrefabFolder + "/Monster.prefab";
         private const string SkyboxPath = "Assets/Free Stylized Hand-Painted Skybox/Materials/Midnight.mat";
 
         // Target sizes in metres (the FBXs are scaled to these, measured from their renderer bounds).
         private const float GhostHeight = 1.9f, GhostHover = 0.2f, TombstoneHeight = 1.5f, PumpkinHeight = 0.6f;
+        // Fences match the 3 m wall cubes; one dirt tile covers DirtTileSize metres of ground.
+        private const float FenceHeight = 3f, DirtTileSize = 4f;
+        private static readonly string[] WallNames = { "Wall_North", "Wall_South", "Wall_East", "Wall_West" };
 
         private static readonly string[] GreyboxMonsterParts = { "Body", "HatBrim", "HatTop", "Eye_L", "Eye_R" };
         // Pumpkin beacons at each puzzle site (local offsets from the site centre, just outside the 3 m disc).
@@ -62,7 +72,8 @@ namespace PuzzleMaster.EditorTools
             var ghost = AssetDatabase.LoadAssetAtPath<GameObject>(GhostPath);
             var tombstone = AssetDatabase.LoadAssetAtPath<GameObject>(TombstonePath);
             var pumpkin = AssetDatabase.LoadAssetAtPath<GameObject>(PumpkinPath);
-            if (ghost == null || tombstone == null || pumpkin == null)
+            var fence = AssetDatabase.LoadAssetAtPath<GameObject>(FencePath);
+            if (ghost == null || tombstone == null || pumpkin == null || fence == null)
             {
                 u.Warn($"PA1 Halloween models missing under {Halloween}");
                 return Report(u, scene);
@@ -73,6 +84,8 @@ namespace PuzzleMaster.EditorTools
             AddPumpkinBeacons(u, scene, pumpkin);
             ApplyNight(u, scene);
             HideMonsterSpotMarkers(u, scene);
+            ApplyDirtGround(u, scene);
+            LineWallsWithFences(u, scene, fence);
             return Report(u, scene);
         }
 
@@ -289,6 +302,106 @@ namespace PuzzleMaster.EditorTools
                 hidden++;
             }
             if (hidden > 0) u.Linked($"{hidden} red monster-spot markers hidden");
+        }
+
+        // ================================================================== Ground + walls
+
+        /// <summary>Dirt material (base + normal map, tiled every DirtTileSize m) on Environment/Ground.</summary>
+        private static void ApplyDirtGround(SetupUtils u, Scene scene)
+        {
+            Transform ground = SetupUtils.FindRoot(scene, "Environment")?.Find("Ground");
+            if (ground == null || !ground.TryGetComponent(out MeshRenderer renderer))
+            {
+                u.Warn("Environment/Ground (MeshRenderer) not found");
+                return;
+            }
+
+            // The normal map was imported as a colour texture; as a bump map it must be a Normal map.
+            var normalImporter = (TextureImporter)AssetImporter.GetAtPath(DirtNormalPath);
+            if (normalImporter != null && normalImporter.textureType != TextureImporterType.NormalMap)
+            {
+                normalImporter.textureType = TextureImporterType.NormalMap;
+                normalImporter.SaveAndReimport();
+                u.Linked("tile_dirt_Normal imported as a Normal map");
+            }
+
+            var material = AssetDatabase.LoadAssetAtPath<Material>(GroundMaterialPath);
+            if (material == null)
+            {
+                material = new Material(Shader.Find("Universal Render Pipeline/Lit")) { name = "M_GroundDirt" };
+                material.SetTexture("_BaseMap", AssetDatabase.LoadAssetAtPath<Texture2D>(DirtBasePath));
+                material.SetTexture("_BumpMap", AssetDatabase.LoadAssetAtPath<Texture2D>(DirtNormalPath));
+                material.EnableKeyword("_NORMALMAP");
+                material.SetFloat("_Smoothness", 0.1f);
+                // Tiling from the ground's world size (a Plane is 10 m × scale).
+                Vector3 size = ground.lossyScale * 10f;
+                material.SetTextureScale("_BaseMap", new Vector2(size.x / DirtTileSize, size.z / DirtTileSize));
+                AssetDatabase.CreateAsset(material, GroundMaterialPath);
+                u.Created($"{GroundMaterialPath} (dirt, tiled {size.x / DirtTileSize:0} × {size.z / DirtTileSize:0})");
+            }
+            if (renderer.sharedMaterial == material)
+            {
+                u.Skipped("ground dirt material");
+                return;
+            }
+            Undo.RecordObject(renderer, "Setup");
+            renderer.sharedMaterial = material;
+            u.Linked("Environment/Ground → M_GroundDirt");
+        }
+
+        /// <summary>
+        /// Fence segments along each boundary wall (in a sibling group, not as children: the wall cubes are
+        /// non-uniformly scaled). The wall's renderer is turned off; its BoxCollider still blocks the player.
+        /// </summary>
+        private static void LineWallsWithFences(SetupUtils u, Scene scene, GameObject fence)
+        {
+            Transform boundary = SetupUtils.FindRoot(scene, "Environment")?.Find("Boundary");
+            if (boundary == null)
+            {
+                u.Warn("Environment/Boundary not found");
+                return;
+            }
+
+            // Measure one fence at the target height to know the segment length (its long side).
+            GameObject probe = PlaceModel(fence, boundary, "Probe", FenceHeight, 0f);
+            Bounds pb = WorldBounds(probe);
+            float segment = Mathf.Max(pb.size.x, pb.size.z);
+            Object.DestroyImmediate(probe);
+
+            foreach (string wallName in WallNames)
+            {
+                Transform wall = boundary.Find(wallName);
+                string groupName = wallName.Replace("Wall_", "Fence_");
+                if (wall == null || boundary.Find(groupName) != null) continue;
+
+                // The wall's long axis (x for north/south, z for east/west) and its length.
+                bool alongX = wall.lossyScale.x > wall.lossyScale.z;
+                float length = alongX ? wall.lossyScale.x : wall.lossyScale.z;
+                int count = Mathf.CeilToInt(length / segment);
+                float step = length / count;
+                // The fence model's long side is its local z (measured above), so walls along x need a 90° turn.
+                float yaw = (alongX ? 90f : 0f) + (pb.size.x > pb.size.z ? 90f : 0f);
+
+                var group = new GameObject(groupName).transform;
+                Undo.RegisterCreatedObjectUndo(group.gameObject, "Setup");
+                group.SetParent(boundary, false);
+                Vector3 axis = alongX ? Vector3.right : Vector3.forward;
+                Vector3 start = new Vector3(wall.position.x, 0f, wall.position.z) - axis * (length / 2f - step / 2f);
+                for (int i = 0; i < count; i++)
+                {
+                    var slot = new GameObject($"Fence_{i + 1:00}").transform;
+                    slot.SetParent(group, false);
+                    slot.position = start + axis * (step * i);
+                    PlaceModel(fence, slot, "Model", FenceHeight, yaw);
+                }
+
+                if (wall.TryGetComponent(out MeshRenderer wallRenderer) && wallRenderer.enabled)
+                {
+                    Undo.RecordObject(wallRenderer, "Setup");
+                    wallRenderer.enabled = false;   // invisible wall: the collider stays
+                }
+                u.Created($"Environment/Boundary/{groupName}: {count} fence segments ({step:0.0} m); {wallName} renderer off, collider kept");
+            }
         }
 
         private static Color Hex(string hex) => ColorUtility.TryParseHtmlString(hex, out Color c) ? c : Color.magenta;

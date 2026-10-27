@@ -46,6 +46,8 @@ Milestone: [Sprint 2 — Monsters & Combat](https://github.com/hwupu/115A-535652
 
 - **2026-10-27**: PO accepted the swing. Halloween swap (ADR-0013): `ThemeSetup` replaces the monster `Model` parts with the PA1 ghost, props with tombstones, adds pumpkin beacons + lights at the puzzle sites, the Midnight skybox and PA1's night lighting, hides the red spot markers; `Monster` tints emission too. Verification measured every model first (bounds + front renders: the ghost faces +Z), caught a **×100 scale bug** (FBX root scale ~100 applied twice: a 154 m ghost) through logged bounds, and checked the result with in-scene renders. A "red ghost" seen in renders was traced to the first batch render before texture upload (warmed-up renders are correct, with and without mipmaps). Gameplay smoke test on the themed build: 15/15. Guide: `docs/guides/halloween-theme.md`.
 
+- **2026-10-27**: PO asked for the ground texture and wall models too. Added to `ThemeSetup`: dirt material (normal map re-imported correctly) on the flat ground; 64 fence segments along the walls, wall cubes kept as invisible colliders. PA1's layout couldn't be reused (fences were children of stretched cubes; the ground mesh was never placed). Verified: run 2 = 0 changes, fence bounds exactly on the wall lines, renders checked.
+
 ## Retro (drafted by SM, confirmed by PO)
 - **Keep:** the headless gameplay smoke test before hand-off (15/15 → the PO's checklist passed first time); demo toggles with exact line numbers.
 - **Problem:** greybox markers were mistaken for items. The guide explained them, but the scene didn't.
