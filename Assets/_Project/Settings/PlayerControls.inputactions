@@ -45,6 +45,16 @@
                     "interactions": "",
                     "initialStateCheck": false,
                     "priority": 0
+                },
+                {
+                    "name": "OrbitHold",
+                    "type": "Button",
+                    "id": "d5dfdddd-4d93-4bcd-91ec-c506a80d26b7",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false,
+                    "priority": 0
                 }
             ],
             "bindings": [
@@ -133,6 +143,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "ToggleMinimap",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c9aefe8b-8f9f-4b0b-9b52-0d78feec81f0",
+                    "path": "<Mouse>/middleButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "OrbitHold",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e15d65aa-67b8-4746-b209-2bef20ec4ad8",
+                    "path": "<Keyboard>/leftAlt",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "OrbitHold",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
