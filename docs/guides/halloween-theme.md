@@ -19,6 +19,7 @@ Time: about 3 minutes, plus a short look around.
 | 6a | Post-processing | Far things slightly blurred, ghosts glow (bloom), darker screen edges, cool purple-blue grading |
 | 6c | Trees | Dead trees beyond the fence all around; two inside (top-left / bottom-right corners) that block you |
 | 6d | Recover a ghost | It turns warm white and pauses ~1 s (chime, item drops), then rises, spins and fades away |
+| 6e | Let a ghost cast at you (night) | Each spell is a glowing purple orb with a short fading trail, and it lights the ground purple as it flies |
 | 6b | Ground and walls | Dark dirt ground; wrought-iron fences on all four sides; walking into a fence still stops you; the camera doesn't go through it |
 | 7 | **Validate Wiring** | All required references set |
 
@@ -38,6 +39,8 @@ Time: about 3 minutes, plus a short look around.
 | `Environment/Boundary/Fence_North/South/East/West` | 16 fence segments each; the `Wall_*` cubes are invisible but still collide |
 
 ## Tuning (art is yours)
+- **Spell glow** (`Prefabs/Greybox/SpellProjectile`): `Glow` light → Intensity / Range; Trail Renderer → Time (length), Width; `Materials/M_SpellCore` → Base Color (keep it only slightly brighter than 1: the post profile has no tonemapping, so stronger values turn white).
+- **Puzzle orbs not glowing?** Select `Materials/M_PuzzleStatus` and tick **Emission** in the Inspector (white). A batch run did not save that switch on this one material.
 - Too dark / too foggy: **Window → Rendering → Lighting → Environment** (Ambient Color, Fog Density), and the Directional Light intensity.
 - More glow: add PA1's post-processing Volume (`../115A-535652-3DGP-PA1/docs/guides/midnight-look.md` §4: Bloom, colour grading, vignette).
 - Ghost glow colour on hits: `Monster` → Hit / Heal / Recovered Color, Tint Glow.

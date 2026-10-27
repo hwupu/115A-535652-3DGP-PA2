@@ -20,6 +20,7 @@ namespace PuzzleMaster.EditorTools
     ///   player fill light) and PA1's post-processing profile (DoF, bloom, colour grading, vignette).
     /// - Recovered ghosts float up and fade: M_GhostFade template linked into Monster.prefab (ADR-0014).
     /// - Trees: a ring outside the fence (on extended dirt ground) and two in empty corners inside.
+    /// - Spells glow: an HDR unlit purple core (bloom), a small purple point light, a fading additive trail.
     /// - The red monster-spot discs are hidden (the ghosts stand there now; Sprint 2 retro).
     /// - Ground: the graveyard's tileable dirt texture (+ normal map) on the flat ground plane.
     /// - Walls: PA1 fence models lined up along the four boundary walls; the wall cubes stay as
@@ -41,6 +42,10 @@ namespace PuzzleMaster.EditorTools
         private const string FadeMaterialPath = SetupUtils.ProjectRoot + "/Materials/M_GhostFade.mat";
         private const string PostProfilePath = SetupUtils.ProjectRoot + "/Settings/PostProcess Profile.asset";
         private const string MonsterPrefabPath = Sprint2Setup.PrefabFolder + "/Monster.prefab";
+        private const string SpellPrefabPath = Sprint2Setup.PrefabFolder + "/SpellProjectile.prefab";
+        private const string SpellCoreMaterialPath = SetupUtils.ProjectRoot + "/Materials/M_SpellCore.mat";
+        private const string SpellTrailMaterialPath = SetupUtils.ProjectRoot + "/Materials/M_SpellTrail.mat";
+        private static readonly Color SpellColor = new Color(0.8f, 0.4f, 1f);
         private const string SkyboxPath = "Assets/Free Stylized Hand-Painted Skybox/Materials/Midnight.mat";
 
         // Target sizes in metres (the FBXs are scaled to these, measured from their renderer bounds).
@@ -97,6 +102,7 @@ namespace PuzzleMaster.EditorTools
             LineWallsWithFences(u, scene, fence);
             LinkGhostFade(u);
             AddTrees(u, scene, tree);
+            GlowSpells(u);
             return Report(u, scene);
         }
 
@@ -269,9 +275,13 @@ namespace PuzzleMaster.EditorTools
         {
             Transform environment = SetupUtils.FindRoot(scene, "Environment");
             if (environment == null) return;
-            if (environment.Find("PostProcess") != null)
+            // Look for any global Volume, not a fixed path: the PO may reorganise the hierarchy
+            // (e.g. Environment/Lighting/PostProcess); a path check would re-apply and duplicate it.
+            Volume existing = Object.FindObjectsByType<Volume>(FindObjectsInactive.Include, FindObjectsSortMode.None)
+                .FirstOrDefault(v => v.isGlobal && v.gameObject.scene == scene);
+            if (existing != null)
             {
-                u.Skipped("PA1 night look + post-processing (Environment/PostProcess exists; lighting left as tuned)");
+                u.Skipped($"PA1 night look + post-processing ({existing.name} exists; lighting left as tuned)");
                 return;
             }
 
@@ -449,6 +459,113 @@ namespace PuzzleMaster.EditorTools
                 }
                 u.Created($"Environment/Boundary/{groupName}: {count} fence segments ({step:0.0} m); {wallName} renderer off, collider kept");
             }
+        }
+
+        // ================================================================== Spells
+
+        /// <summary>
+        /// Makes monster spells glow: an HDR unlit core (above the bloom threshold, so the post profile's
+        /// bloom gives it a halo), a purple point light that lights the ground as it flies,
+        /// and a short additive trail. Each part is skipped once present.
+        /// </summary>
+        private static void GlowSpells(SetupUtils u)
+        {
+            Material core = GetOrCreateSpellCoreMaterial(u);
+            Material trailMaterial = GetOrCreateTrailMaterial(u);
+            GameObject root = PrefabUtility.LoadPrefabContents(SpellPrefabPath);
+            try
+            {
+                bool changed = false;
+                Renderer model = root.transform.Find("Model")?.GetComponent<Renderer>();
+                if (model == null) u.Warn("SpellProjectile.prefab has no Model renderer");
+                else if (model.sharedMaterial != core && model.sharedMaterial != null && model.sharedMaterial.name == "M_Spell")
+                {
+                    model.sharedMaterial = core;
+                    changed = true;
+                    u.Linked("SpellProjectile.prefab/Model → M_SpellCore (glowing core)");
+                }
+                if (root.transform.Find("Glow") == null)
+                {
+                    var glow = new GameObject("Glow").AddComponent<Light>();
+                    glow.transform.SetParent(root.transform, false);
+                    glow.type = LightType.Point;
+                    glow.color = SpellColor;
+                    glow.range = 4f;
+                    glow.intensity = 3f;
+                    glow.shadows = LightShadows.None;   // a few short-lived lights are cheap in URP Forward+
+                    changed = true;
+                    u.Created("SpellProjectile.prefab/Glow (purple point light)");
+                }
+                if (!root.TryGetComponent(out TrailRenderer trail))
+                {
+                    trail = root.AddComponent<TrailRenderer>();
+                    trail.sharedMaterial = trailMaterial;
+                    trail.time = 0.3f;
+                    trail.minVertexDistance = 0.1f;
+                    trail.widthCurve = AnimationCurve.Linear(0f, 0.3f, 1f, 0f);   // thick at the spell, thin at the tail
+                    var gradient = new Gradient();
+                    gradient.SetKeys(
+                        new[] { new GradientColorKey(SpellColor, 0f), new GradientColorKey(SpellColor, 1f) },
+                        new[] { new GradientAlphaKey(0.9f, 0f), new GradientAlphaKey(0f, 1f) });
+                    trail.colorGradient = gradient;
+                    trail.shadowCastingMode = ShadowCastingMode.Off;
+                    trail.receiveShadows = false;
+                    changed = true;
+                    u.Created("SpellProjectile.prefab trail (0.3 s, fading)");
+                }
+                if (changed) PrefabUtility.SaveAsPrefabAsset(root, SpellPrefabPath);
+                else u.Skipped("spell glow light + trail");
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(root);
+            }
+        }
+
+        /// <summary>
+        /// URP Unlit with an HDR colour (purple × 1.3): unlit output goes straight to the HDR buffer,
+        /// above the 0.9 bloom threshold, so bloom draws the halo. Only slightly over 1: the post profile
+        /// has no tonemapping, so stronger values clip every channel to white. No shader keyword needed (an emission
+        /// keyword set from a batch run was not always saved; the unlit colour is just a property).
+        /// </summary>
+        private static Material GetOrCreateSpellCoreMaterial(SetupUtils u)
+        {
+            var material = AssetDatabase.LoadAssetAtPath<Material>(SpellCoreMaterialPath);
+            if (material != null)
+            {
+                u.Skipped(SpellCoreMaterialPath);
+                return material;
+            }
+            material = new Material(Shader.Find("Universal Render Pipeline/Unlit")) { name = "M_SpellCore" };
+            material.SetColor(MaterialUtility.BaseColor, new Color(SpellColor.r * 1.3f, SpellColor.g * 1.3f, SpellColor.b * 1.3f, 1f));
+            AssetDatabase.CreateAsset(material, SpellCoreMaterialPath);
+            u.Created($"{SpellCoreMaterialPath} (URP Unlit, HDR purple × 1.3)");
+            return material;
+        }
+
+        /// <summary>URP Particles/Unlit, transparent additive: the trail brightens what is behind it and never darkens.</summary>
+        private static Material GetOrCreateTrailMaterial(SetupUtils u)
+        {
+            var material = AssetDatabase.LoadAssetAtPath<Material>(SpellTrailMaterialPath);
+            if (material != null)
+            {
+                u.Skipped(SpellTrailMaterialPath);
+                return material;
+            }
+            material = new Material(Shader.Find("Universal Render Pipeline/Particles/Unlit")) { name = "M_SpellTrail" };
+            // Like MaterialUtility.MakeTransparent, but additive (dst × One): set what the Inspector would set.
+            material.SetFloat("_Surface", 1f);
+            material.SetFloat("_Blend", 2f);   // 2 = Additive in URP's particle shaders
+            material.SetOverrideTag("RenderType", "Transparent");
+            material.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);
+            material.SetFloat("_DstBlend", (float)BlendMode.One);
+            material.SetFloat("_ZWrite", 0f);
+            material.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+            material.renderQueue = (int)RenderQueue.Transparent;
+            material.SetColor(MaterialUtility.BaseColor, Color.white);   // the trail's vertex colours carry the purple
+            AssetDatabase.CreateAsset(material, SpellTrailMaterialPath);
+            u.Created($"{SpellTrailMaterialPath} (URP Particles/Unlit, additive)");
+            return material;
         }
 
         // ================================================================== Fade + trees

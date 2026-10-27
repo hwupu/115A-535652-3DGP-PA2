@@ -87,3 +87,9 @@ Template:
 - **Verification:** clone setup ×2 (second run 0 changes), wiring ✓, 0 errors / 0 warnings, renders of every site + the minimap texture, **built-game smoke test 30 / 30** for the puzzles + minimap, Sprint 2 smoke 18 / 18 on the same build.
 - **Bug caught by the smoke test:** after the 4th solve the "gate is open" message came first and was overwritten by "… solved! +200" (event subscription order). Fixed (unlock one frame later + a two-line message). Another failure was the test's own: `WaitForSeconds` never ends after the Win screen sets `timeScale = 0`.
 - **Not verified by AI:** whether the zones, labels, map zoom and messages feel right → PO play-test.
+
+## 2026-10-27 · #13 · Sprint 3 accepted; glowing monster spells · PB-17 / PB-26
+- **Prompt:** "checklist confirmed. merge. everything good. keep doing. can you make the spill from manster glow?"
+- **AI output:** Closed Sprint 3 (#18–#25, milestone, board; 90 / 100 marks verified). Added a `GlowSpells` step to the Halloween setup: HDR unlit core (bloom), purple point light, fading additive trail.
+- **Caught in verification (clone):** (1) rerunning the theme setup on the PO's scene **re-applied the night lighting and would have added a second post-processing volume**, because the PO had moved `PostProcess` under `Environment/Lighting` and the setup checked a fixed path → now it looks for any global Volume. (2) The emission keyword on `M_Spell` was lost between batch runs (the same happened to `M_PuzzleStatus`) → switched the spell core to an unlit HDR colour. (3) The first glow rendered white: the post profile has no tonemapping, so channels > 1 clip → colour lowered to × 1.3. Each was found by looking at the second run's log or the render, not by compiling.
+- **Verification:** setup ×2 (second run 0 changes, PO lighting untouched), renders, built-game smoke 18 / 18, 0 errors / 0 warnings.

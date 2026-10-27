@@ -23,3 +23,7 @@ Theme = Halloween with PA1's assets (ADR-0011). The PO asked to swap the greybox
 - The code is unchanged except the emission tint; everything else is prefab / scene data, rerunnable.
 - Open option: the **Artifact** pickup could also become a pumpkin (a "golden jack-o'-lantern"), since the pack has no artifact model; the PO decides.
 - Not yet themed: the puzzle props (Sprint 3). Recovered ghosts float away: ADR-0014.
+
+## Amendment (2026-10-27): glowing spells
+PO request "can you make the spell from monster glow?" `ThemeSetup.GlowSpells`: the spell core uses `M_SpellCore` (URP Unlit, HDR purple × 1.3, so bloom catches it without clipping to white — the profile has no tonemapping), a purple point light (range 4, no shadows) lights the ground along the path, and an additive `M_SpellTrail` (URP Particles/Unlit) trail fades over 0.3 s. Unlit HDR instead of an emission keyword, because an `_EMISSION` keyword set from batch mode was not reliably saved. No gameplay change (spells hit exactly as before; smoke test 18/18).
+
