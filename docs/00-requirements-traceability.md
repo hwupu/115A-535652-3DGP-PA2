@@ -5,16 +5,16 @@ Source: `reference/3DGP_PA_02_Instruction.pdf`, marking scheme on p. 2 (the offi
 ## Rubric (100 marks)
 | # | Rubric category / item | Marks | Spec section | Backlog | Status | Verified how |
 |---|---|---|---|---|---|---|
-| 1 | **Gameplay mechanics** — player movement (WASD, rotate with the mouse) | 10 | §2 | PB-02, PB-03 | 🟨 | Code + setup verified in a clone; PO play-test pending |
+| 1 | **Gameplay mechanics** — player movement (WASD, rotate with the mouse) | 10 | §2 | PB-02, PB-03 | ✅ | PO play-test 2026-10-27 (Sprint 1 Review, checklist 3–6) |
 | | monster attack / recovery (monsters cast spells; player attacks; 0 HP → recovered) | 10 | §2, §3 | PB-09, PB-10, PB-11 (+ PB-13) | ⬜ | |
 | | item collection (recovered monster drops an item; player collects it) | 10 | §6 | PB-14 | ⬜ | |
 | 2 | **Puzzle system** — five functioning puzzles | 15 | §5 | PB-18, PB-19, PB-20, PB-21, PB-22 | ⬜ | |
 | | puzzle completion logic (items used to solve; count; all five → win) | 10 | §5, §6, §10 | PB-17 | ⬜ | |
-| 3 | **User interface** — introduction screen | 4 | §1 | PB-04 | 🟨 | |
+| 3 | **User interface** — introduction screen | 4 | §1 | PB-04 | ✅ | PO play-test 2026-10-27 (Sprint 1 Review) |
 | | score display | 4 | §7 | PB-15 | ⬜ | |
-| | timer display (upper-left, MM:SS, 5 min) | 4 | §8 | PB-05 | 🟨 | |
+| | timer display (upper-left, MM:SS, 5 min) | 4 | §8 | PB-05 | ✅ | PO play-test 2026-10-27 (Sprint 1 Review; 15 s config test) |
 | | monster life bars (above the head) | 4 | §3 | PB-12 | ⬜ | |
-| | win / lose screens | 4 | §10, §11 | PB-06 | 🟨 | |
+| | win / lose screens | 4 | §10, §11 | PB-06 | ✅ | PO play-test 2026-10-27: lose via timer, win via debug menu; real win trigger in Sprint 3 (PB-17) |
 | 4 | **Audio and visual effects** — background music (starts with gameplay, continues until win / lose) | 5 | §4 | PB-25 | ⬜ | |
 | | hit sound effects (player attacks monster) | 5 | §4 | PB-16 | ⬜ | |
 | 5 | **Minimap and game management** — minimap (player + puzzle locations) | 5 | §9 | PB-23 | ⬜ | |
