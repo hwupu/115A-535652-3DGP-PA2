@@ -206,6 +206,7 @@ namespace PuzzleMaster.EditorTools
             gameplay.AddAction("Look", InputActionType.Value, "<Mouse>/delta", expectedControlLayout: "Vector2");
             gameplay.AddAction("Attack", InputActionType.Button, "<Mouse>/leftButton");
             gameplay.AddAction("ToggleMinimap", InputActionType.Button, "<Keyboard>/m");
+            Sprint4Setup.AddOrbitHold(gameplay);
 
             InputActionMap screens = asset.AddActionMap(GameInput.ScreensMap);
             screens.AddAction("Start", InputActionType.Button, "<Keyboard>/space");

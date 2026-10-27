@@ -8,6 +8,7 @@ namespace PuzzleMaster.Puzzles
     /// <summary>
     /// Completion logic (PB-17, ADR-0009): counts solved puzzles, awards the solve score
     /// (+200 by default, config.json), and when all are solved tells the GameStateManager to Win.
+    /// Each solve message also restores one of the story's five Crystal Seals (PB-27).
     /// The HUD objective list listens to <see cref="Changed"/>.
     /// The puzzle list is linked by Setup → Sprint 3 (the five sites in spec order).
     /// </summary>
@@ -19,6 +20,8 @@ namespace PuzzleMaster.Puzzles
         [SerializeField] private GameStateManager gameState;
         [Tooltip("Receives the solve points.")]
         [SerializeField] private ScoreManager score;
+        [Tooltip("Story line added to every solve message (PB-27, the spec's Hero's Journey). Empty = none.")]
+        [SerializeField] private string solvedStoryLine = "A Crystal Seal is restored.";
 
         /// <summary>Raised when any puzzle's status changes (progress or solve).</summary>
         public event Action Changed;
@@ -63,7 +66,8 @@ namespace PuzzleMaster.Puzzles
         {
             int points = score != null ? score.SolvePuzzlePoints : 0;
             if (score != null) score.Add(points, $"puzzle solved: {puzzle.Title}");
-            GameEvents.RaisePuzzleMessage($"{puzzle.Title} solved! +{points}   ({SolvedCount}/{Total})");
+            string story = string.IsNullOrEmpty(solvedStoryLine) ? "" : " " + solvedStoryLine;
+            GameEvents.RaisePuzzleMessage($"{puzzle.Title} solved!{story} +{points}   ({SolvedCount}/{Total})");
 
             if (SolvedCount < Total) return;
             Debug.Log("All puzzles solved → Win");
