@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4847e9116660c49c3849e54fe0f03ca7, type: 3}
+  m_Name: Item_Key
+  m_EditorClassIdentifier: Assembly-CSharp::PuzzleMaster.Items.ItemDefinition
+  displayName: Key
+  color: {r: 1, g: 0.8, b: 0.14999998, a: 1}
+  pickupPrefab: {fileID: 2942194349367823307, guid: fae9e633572ee47229ce7fad27471816, type: 3}
