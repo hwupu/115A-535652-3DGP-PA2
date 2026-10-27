@@ -418,6 +418,12 @@ MonoBehaviour:
   drop: {fileID: 0}
   dropOffset: {x: 0, y: 0, z: 1.5}
   recoveredColor: {r: 1, g: 0.95, b: 0.75, a: 1}
+  recoveredStyle: 1
+  floatHoldSeconds: 1
+  floatDuration: 2
+  floatHeight: 3
+  floatSpin: 120
+  fadeMaterialTemplate: {fileID: 2100000, guid: 3699d68c49e4c4259b31fe03fb6c4b00, type: 2}
   hitColor: {r: 1, g: 0.25, b: 0.25, a: 1}
   healColor: {r: 0.3, g: 1, b: 0.4, a: 1}
   flashDuration: 0.15
