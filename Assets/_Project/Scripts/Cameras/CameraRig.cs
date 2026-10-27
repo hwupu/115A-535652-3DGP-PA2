@@ -8,13 +8,17 @@ namespace PuzzleMaster.Cameras
     /// Yaw: copied from the target (PlayerMotor turns the player with mouse X).
     /// Pitch: mouse Y, clamped. Distance: fixed, but a SphereCast pulls the camera in front of
     /// walls so it never looks through them. Put this on the Main Camera.
+    /// Orbit (hold middle mouse or Left Alt; ported from PA1's orbit preview): the mouse circles the
+    /// camera around the player without turning it, e.g. to show the character's front in the demo.
+    /// On release the camera eases back behind the player. Only camera-side offsets change, so
+    /// movement and attacks keep using the player's facing.
     /// </summary>
     public class CameraRig : MonoBehaviour
     {
         [Tooltip("The player root to follow.")]
         [SerializeField] private Transform target;
 
-        [Tooltip("Input source (Look).")]
+        [Tooltip("Input source (Look, OrbitHold).")]
         [SerializeField] private GameInput input;
 
         [Header("Framing")]
@@ -35,6 +39,10 @@ namespace PuzzleMaster.Cameras
         [Tooltip("Tick to invert the vertical mouse axis.")]
         [SerializeField] private bool invertY;
 
+        [Header("Orbit (hold middle mouse / Left Alt)")]
+        [Tooltip("Seconds the camera takes to return behind the player after the orbit button is released.")]
+        [SerializeField, Min(0.01f)] private float orbitReturnTime = 0.35f;
+
         [Header("Wall avoidance")]
         [Tooltip("Radius of the sphere swept from the pivot to the camera.")]
         [SerializeField] private float collisionRadius = 0.25f;
@@ -42,6 +50,8 @@ namespace PuzzleMaster.Cameras
         [SerializeField] private LayerMask collisionMask = ~0;
 
         private float pitch;
+        private float orbitYaw, orbitPitch;                  // camera-only offsets while orbiting
+        private float orbitYawVelocity, orbitPitchVelocity;  // SmoothDamp state for the return
         private readonly RaycastHit[] hits = new RaycastHit[8];
 
         private float Sensitivity => ConfigLoader.Current?.mouseSensitivity ?? mouseSensitivity;
@@ -58,18 +68,38 @@ namespace PuzzleMaster.Cameras
         {
             if (target == null) return;
 
-            if (input != null)
-            {
-                float dy = input.Look.y * Sensitivity;
-                // Mouse up = look up = smaller pitch (unless inverted).
-                pitch = Mathf.Clamp(pitch + (invertY ? dy : -dy), minPitch, maxPitch);
-            }
+            if (input != null) UpdateLook();
 
             Vector3 pivot = target.position + Vector3.up * pivotHeight;
-            Quaternion rotation = Quaternion.Euler(pitch, target.eulerAngles.y, 0f);
+            // The orbit offsets are added on top, so they never change the player's facing.
+            Quaternion rotation = Quaternion.Euler(pitch + orbitPitch, target.eulerAngles.y + orbitYaw, 0f);
             Vector3 back = rotation * Vector3.back;
 
             transform.SetPositionAndRotation(pivot + back * ClearDistance(pivot, back), rotation);
+        }
+
+        /// <summary>
+        /// Mouse Y tilts the camera. While orbiting, mouse X / Y move the orbit offsets instead
+        /// (PlayerMotor stops turning); otherwise the offsets ease back to zero.
+        /// </summary>
+        private void UpdateLook()
+        {
+            Vector2 look = input.Look * Sensitivity;
+            float dy = invertY ? look.y : -look.y;   // mouse up = look up = smaller pitch (unless inverted)
+
+            if (input.IsOrbitHeld)
+            {
+                orbitYaw += look.x;   // unclamped: the camera can go all the way around
+                // Clamp the combined pitch (base + offset), then keep only the offset part.
+                orbitPitch = Mathf.Clamp(pitch + orbitPitch + dy, minPitch, maxPitch) - pitch;
+                return;
+            }
+
+            pitch = Mathf.Clamp(pitch + dy, minPitch, maxPitch);
+            // SmoothDamp is a critically damped spring (no overshoot); the Angle version
+            // takes the short way around 360 degrees.
+            orbitYaw = Mathf.SmoothDampAngle(orbitYaw, 0f, ref orbitYawVelocity, orbitReturnTime);
+            orbitPitch = Mathf.SmoothDamp(orbitPitch, 0f, ref orbitPitchVelocity, orbitReturnTime);
         }
 
         /// <summary>How far the camera can go back from the pivot before a wall gets in the way.</summary>

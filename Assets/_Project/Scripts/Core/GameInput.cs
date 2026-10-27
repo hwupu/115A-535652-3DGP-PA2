@@ -8,7 +8,7 @@ namespace PuzzleMaster.Core
     /// Single entry point for input (ADR-0003, PB-02…PB-08).
     /// Wraps PlayerControls.inputactions, so other scripts never touch the Input System directly.
     /// Three action maps, enabled by game state (GameStateManager calls the Set…Enabled methods):
-    /// - Gameplay (only while Playing): Move, Look, Attack, ToggleMinimap
+    /// - Gameplay (only while Playing): Move, Look, Attack, ToggleMinimap, OrbitHold
     /// - Screens  (intro / win / lose):   Start (SPACE), Restart (R)
     /// - Global   (always):               Quit (ESC), ReloadConfig (F5)
     /// Continuous values (Move, Look) are polled; buttons are C# events. A disabled map reads
@@ -38,8 +38,14 @@ namespace PuzzleMaster.Core
         /// <summary>Mouse movement this frame, in pixels. Zero outside gameplay.</summary>
         public Vector2 Look => look != null ? look.ReadValue<Vector2>() : Vector2.zero;
 
+        /// <summary>
+        /// True while the orbit button is held (middle mouse or Left Alt): the camera circles the player
+        /// instead of turning it, e.g. to show the character's front in the demo. False outside gameplay.
+        /// </summary>
+        public bool IsOrbitHeld => orbitHold != null && orbitHold.IsPressed();
+
         private InputActionMap gameplay, screens, global;
-        private InputAction move, look, attack, toggleMinimap, start, restart, quit, reloadConfig;
+        private InputAction move, look, orbitHold, attack, toggleMinimap, start, restart, quit, reloadConfig;
 
         // Awake runs before any OnEnable/Start, so the actions are looked up once before others poll them.
         // throwIfNotFound: a typo in a map or action name fails loudly instead of silently reading zero.
@@ -57,6 +63,10 @@ namespace PuzzleMaster.Core
             global = actions.FindActionMap(GlobalMap, true);
             move = gameplay.FindAction("Move", true);
             look = gameplay.FindAction("Look", true);
+            // Added in Sprint 4: an asset made before that has no OrbitHold until Setup → Sprint 4 runs.
+            orbitHold = gameplay.FindAction("OrbitHold");
+            if (orbitHold == null)
+                Debug.LogWarning($"{nameof(GameInput)}: no OrbitHold action; the orbit camera is off. Run Puzzle Master → Setup → Sprint 4.", this);
             attack = gameplay.FindAction("Attack", true);
             toggleMinimap = gameplay.FindAction("ToggleMinimap", true);
             start = screens.FindAction("Start", true);

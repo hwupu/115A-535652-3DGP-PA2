@@ -6,7 +6,8 @@ namespace PuzzleMaster.Player
     /// <summary>
     /// Player movement and turning (ADR-0007, PB-02 / PB-03).
     /// - Mouse X turns the player (yaw). The CameraRig follows this yaw, so "forward" for WASD is
-    ///   always the direction the camera looks.
+    ///   always the direction the camera looks. While the orbit button is held, the mouse orbits
+    ///   the camera instead and the player keeps its facing (CameraRig).
     /// - WASD moves relative to that facing, with acceleration smoothing, on a CharacterController
     ///   (collides with walls and props without physics tuning). Gravity keeps the player grounded.
     /// Input comes from GameInput, which reads zero outside gameplay, so no state checks are needed.
@@ -69,6 +70,7 @@ namespace PuzzleMaster.Player
 
         private void Turn()
         {
+            if (input.IsOrbitHeld) return;   // the mouse belongs to the orbit camera
             // Mouse delta is already "pixels moved this frame", so it is not multiplied by deltaTime.
             yaw += input.Look.x * Sensitivity;
             transform.rotation = Quaternion.Euler(0f, yaw, 0f);
