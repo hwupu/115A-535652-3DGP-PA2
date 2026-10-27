@@ -14,6 +14,8 @@ namespace PuzzleMaster.EditorTools
     /// Steps: import the swing clip FBX (Generic, avatar copied from the witch), add the Attack
     /// trigger + MeleeSwing state to AC_Player, create M_Witch, put the witch under Player/Model
     /// (greybox body and nose hidden), move the sword into the witch's right hand, add PlayerAnimator.
+    /// If the PO's wand (Models/Wand/wand.fbx) exists, it replaces the greybox sword in the hand
+    /// (gem forward, like the blade), so the swing clip swings the wand.
     /// Menu: Puzzle Master → Setup → Player Character (Witch)
     /// Batch: -executeMethod PuzzleMaster.EditorTools.PlayerCharacterSetup.RunBatch
     /// </summary>
@@ -32,6 +34,9 @@ namespace PuzzleMaster.EditorTools
         private const float ModelScale = 1.35f;
         // Sword held in the right fist: blade forward, grip at the hand (set once in the bind pose).
         private const float SwordGripOffset = 0.4f;
+        // The PO's wand: 0.88 m along its +Y, butt at 0, gem at the top. Held 0.25 m up from the butt.
+        private const string WandPath = SetupUtils.ProjectRoot + "/Models/Wand/wand.fbx";
+        private const float WandGrip = 0.25f;
 
         [MenuItem("Puzzle Master/Setup/Player Character (Witch)")]
         public static void RunFromMenu()
@@ -231,6 +236,7 @@ namespace PuzzleMaster.EditorTools
             }
 
             MoveSwordToHand(u, player, witch);
+            SwapSwordForWand(u, player, witch);
 
             var driver = u.GetOrAdd<PlayerAnimator>(player.gameObject);
             u.LinkIfEmpty(driver, "animator", animator);
@@ -296,6 +302,56 @@ namespace PuzzleMaster.EditorTools
                 SetupUtils.SetValue(attack, "swingPivot", p => p.objectReferenceValue = null);
                 Undo.DestroyObjectImmediate(oldPivot.gameObject);
                 u.Removed("Player/Model/SwordPivot (the swing clip moves the sword now)");
+            }
+        }
+
+        /// <summary>
+        /// Puts the PO's wand in the witch's right hand instead of the greybox sword (which is hidden, not
+        /// deleted). Placed in the sampled Idle pose like the sword: a "Wand" holder on hand.R whose +Y
+        /// points forward, with the model offset so the hand holds it <see cref="WandGrip"/> above the butt
+        /// and the gem points forward. Being a child of the hand bone, the MeleeSwing clip swings it.
+        /// </summary>
+        private static void SwapSwordForWand(SetupUtils u, Transform player, Transform witch)
+        {
+            var wandAsset = AssetDatabase.LoadAssetAtPath<GameObject>(WandPath);
+            if (wandAsset == null) return;   // optional art: keep the sword
+            Transform hand = witch.GetComponentsInChildren<Transform>(true).FirstOrDefault(t => t.name == "hand.R");
+            if (hand == null) { u.Warn("hand.R bone not found; wand not placed"); return; }
+            if (hand.Find("Wand") != null) { u.Skipped("Wand in hand.R"); return; }
+            AnimationClip idle = AssetDatabase.LoadAllAssetsAtPath(ModelPath).OfType<AnimationClip>().FirstOrDefault(c => c.name == "Idle");
+            if (idle == null) { u.Warn("Idle clip not found; wand not placed"); return; }
+
+            var holder = new GameObject("Wand").transform;
+            Undo.RegisterCreatedObjectUndo(holder.gameObject, "Setup");
+            AnimationMode.StartAnimationMode();   // StopAnimationMode reverts the sampled bone poses
+            try
+            {
+                AnimationMode.BeginSampling();
+                AnimationMode.SampleAnimationClip(witch.gameObject, idle, 0f);
+                AnimationMode.EndSampling();
+                // Holder at the fist, its +Y = the player's forward (Euler(90, 0, 0) turns up into forward).
+                holder.SetPositionAndRotation(hand.position, player.rotation * Quaternion.Euler(90f, 0f, 0f));
+                Undo.SetTransformParent(holder, hand, "Setup");   // keeps the world pose and a world scale of 1
+            }
+            finally
+            {
+                AnimationMode.StopAnimationMode();
+            }
+
+            // Keep the FBX's own import rotation and scale (it stands upright, 0.88 m, at those values).
+            var model = (GameObject)PrefabUtility.InstantiatePrefab(wandAsset, holder);
+            model.transform.localRotation = wandAsset.transform.localRotation;
+            model.transform.localScale = wandAsset.transform.localScale;
+            model.transform.localPosition = new Vector3(0f, -WandGrip, 0f);
+            foreach (Collider c in model.GetComponentsInChildren<Collider>()) Object.DestroyImmediate(c);
+            u.Created("Wand in the witch's right hand (gem forward)");
+
+            Transform sword = player.GetComponentsInChildren<Transform>(true).FirstOrDefault(t => t.name == "Sword");
+            if (sword != null && sword.gameObject.activeSelf)
+            {
+                Undo.RecordObject(sword.gameObject, "Setup");
+                sword.gameObject.SetActive(false);
+                u.Linked("greybox Sword hidden (the wand replaces it)");
             }
         }
 

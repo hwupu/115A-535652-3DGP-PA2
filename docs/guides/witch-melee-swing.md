@@ -14,6 +14,7 @@ Time: about 3 minutes, plus a short play-test.
 | 3 | Left-click next to a monster | Same swing + the hit sound + damage, as before |
 | 4 | Click rapidly | One swing per ~0.5 s (cooldown); no stutter |
 | 5 | Back the camera into a wall | The camera still ignores the witch (no zoom-in jitter) |
+| 7 | Your wand (`Models/Wand/wand.fbx`) | After rerunning **Player Character (Witch)**: the witch holds the wand in her right hand, gem forward; every swing swings the wand; the grey sword is gone (hidden as `Sword`, not deleted) |
 | 6 | **Validate Wiring** | All required references set; no red messages |
 
 ## What the setup did
@@ -27,6 +28,7 @@ Time: about 3 minutes, plus a short play-test.
 | `Gameplay/Player` | + `PlayerAnimator` (Speed → Idle/Walk/Run, swing → Attack) |
 
 ## Tuning / swapping
+- **Wand grip**: `Player/Model/Witch/…/hand.R/Wand` is the holder (its +Y points forward); move the `wand` child along Y to slide the grip, or rotate the holder to tilt it. To go back to the sword, delete `Wand` and re-tick `Sword`.
 - Swap the sword: replace the `Sword` cube under `hand.R` with a model (keep it a child of `hand.R`).
 - Swing speed: `AC_Player` → `MeleeSwing` state → Speed. Size: `Model/Witch` scale.
 - Regenerate the clip: see the header of `Tools/Blender/make_melee_swing.py`.

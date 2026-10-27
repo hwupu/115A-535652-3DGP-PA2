@@ -18,3 +18,7 @@ Theme = Halloween with PA1's assets (ADR-0011). The Little Witch has Idle / Walk
 ## Consequences
 - Reproducible: re-run the Blender script and the setup to regenerate. Evidence of AI-assisted asset tooling for the report.
 - Accepted glitches (PA1 style): some foot sliding while walking; the dark sleeve makes the arm hard to read, so the blade carries the motion; a click during the swing is ignored by the Animator (the cooldown is about the clip length).
+
+## Amendment (2026-10-28): the PO's wand replaces the sword
+The PO added `Models/Wand/wand.fbx` (0.88 m, upright, gem on top; measured and rendered before use). `PlayerCharacterSetup.SwapSwordForWand` puts a `Wand` holder on `hand.R` in the sampled Idle pose (holder +Y = forward), the model held 0.25 m above its butt, gem forward like the blade; the greybox sword is hidden, not deleted. Gameplay is unchanged (the hit cone is code, not the model). Verified: setup ×2 (second run 0 changes), renders of Idle + four swing poses (the wand sweeps from behind the right side to the front), wiring ✓.
+

@@ -23,6 +23,8 @@ namespace PuzzleMaster.EditorTools
     /// - Spells glow: an HDR unlit purple core (bloom), a small purple point light, a fading additive trail.
     /// - Pickups glow: emission in the item colour (bloom) + a small light in the item's Model (so the copy
     ///   placed on a puzzle glows too).
+    /// - Sharp world UI: puzzle labels and monster life bars on a "WorldUI" layer, drawn by an overlay
+    ///   camera after the post-processing (no depth-of-field blur), still hidden behind walls.
     /// - The red monster-spot discs are hidden (the ghosts stand there now; Sprint 2 retro).
     /// - Ground: the graveyard's tileable dirt texture (+ normal map) on the flat ground plane.
     /// - Walls: PA1 fence models lined up along the four boundary walls; the wall cubes stay as
@@ -106,6 +108,7 @@ namespace PuzzleMaster.EditorTools
             AddTrees(u, scene, tree);
             GlowSpells(u);
             GlowPickups(u);
+            KeepWorldUiSharp(u, scene);
             return Report(u, scene);
         }
 
@@ -621,6 +624,135 @@ namespace PuzzleMaster.EditorTools
                 {
                     PrefabUtility.UnloadPrefabContents(root);
                 }
+            }
+        }
+
+        // ================================================================== Sharp world UI
+
+        private const string WorldUiLayer = "WorldUI";
+
+        /// <summary>
+        /// Keeps the puzzle labels and the monster life bars out of the depth-of-field blur. URP camera
+        /// stacking: the main (Base) camera no longer renders the WorldUI layer; an Overlay camera that
+        /// renders only that layer, with post-processing off, is added to its stack, so it draws on top of
+        /// the finished, post-processed image. Its Clear Depth is off, so it reuses the base camera's depth
+        /// and walls / ghosts still hide labels behind them.
+        /// </summary>
+        private static void KeepWorldUiSharp(SetupUtils u, Scene scene)
+        {
+            int layer = u.EnsureLayer(WorldUiLayer);
+            if (layer < 0) return;
+
+            // Labels above the puzzle sites (Sprint 3) and the life bar inside the Monster prefab.
+            Transform sites = SetupUtils.FindRoot(scene, "Gameplay")?.Find("PuzzleSites");
+            int moved = 0;
+            if (sites != null)
+                foreach (Transform site in sites)
+                {
+                    Transform label = site.Find("Label");
+                    if (label == null || label.gameObject.layer == layer) continue;
+                    Undo.RecordObject(label.gameObject, "Setup");
+                    SetupUtils.SetLayerRecursively(label.gameObject, layer);
+                    moved++;
+                }
+            if (moved > 0) u.Linked($"{moved} puzzle labels → layer {WorldUiLayer}");
+
+            ConvertLifeBarToQuads(u, layer);
+
+            Camera main = SetupUtils.FindRoot(scene, "Cameras")?.Find("Main Camera")?.GetComponent<Camera>();
+            if (main == null)
+            {
+                u.Warn("Cameras/Main Camera not found: world UI stays blurred");
+                return;
+            }
+            if ((main.cullingMask & (1 << layer)) != 0)
+            {
+                Undo.RecordObject(main, "Setup");
+                main.cullingMask &= ~(1 << layer);
+                u.Linked($"Main Camera culling mask: {WorldUiLayer} excluded");
+            }
+
+            UniversalAdditionalCameraData baseData = main.GetUniversalAdditionalCameraData();
+            Transform existing = main.transform.Find("WorldUICamera");
+            Camera overlay = existing != null ? existing.GetComponent<Camera>() : null;
+            if (overlay == null)
+            {
+                var go = new GameObject("WorldUICamera");
+                Undo.RegisterCreatedObjectUndo(go, "Setup");
+                go.transform.SetParent(main.transform, false);   // same position and rotation as the main camera
+                overlay = go.AddComponent<Camera>();
+                overlay.fieldOfView = main.fieldOfView;         // same projection (nothing changes the FOV at runtime)
+                overlay.nearClipPlane = main.nearClipPlane;
+                overlay.farClipPlane = main.farClipPlane;
+                overlay.cullingMask = 1 << layer;
+                UniversalAdditionalCameraData data = overlay.GetUniversalAdditionalCameraData();
+                data.renderType = CameraRenderType.Overlay;
+                data.renderPostProcessing = false;
+                data.renderShadows = false;
+                // Keep the scene's depth so walls still hide labels behind them. The C# property is
+                // read-only in this URP version; the Inspector's "Clear Depth" is the m_ClearDepth field.
+                SetupUtils.SetValue(data, "m_ClearDepth", p => p.boolValue = false);
+                u.Created("Cameras/Main Camera/WorldUICamera (Overlay, WorldUI only, no post-processing)");
+            }
+            else u.Skipped("Cameras/Main Camera/WorldUICamera");
+
+            if (!baseData.cameraStack.Contains(overlay))
+            {
+                baseData.cameraStack.Add(overlay);
+                EditorUtility.SetDirty(baseData);
+                u.Linked("Main Camera stack: + WorldUICamera");
+            }
+        }
+
+        /// <summary>
+        /// Rebuilds the Monster prefab's life bar from a world-space canvas into two unlit quads on the
+        /// WorldUI layer (a canvas was not drawn by the overlay camera in our renders; quads are plain
+        /// meshes like the TMP labels). Same size (1.2 × 0.14 m), same place, same LifeBar component logic.
+        /// </summary>
+        private static void ConvertLifeBarToQuads(SetupUtils u, int layer)
+        {
+            Material back = u.GetOrCreateUnlitMaterial("MI_LifeBarBack", new Color(0.05f, 0.05f, 0.05f));
+            Material fillMaterial = u.GetOrCreateUnlitMaterial("MI_LifeBarFill", Color.white);   // tinted by LifeBar
+            GameObject root = PrefabUtility.LoadPrefabContents(MonsterPrefabPath);
+            try
+            {
+                Transform old = root.transform.Find("LifeBar");
+                if (old == null) { u.Warn("Monster.prefab has no LifeBar"); return; }
+                if (old.GetComponent<Canvas>() == null)
+                {
+                    u.Skipped("Monster.prefab LifeBar (quads)");
+                    return;
+                }
+                Vector3 position = old.localPosition;
+                Object.DestroyImmediate(old.gameObject);
+
+                var bar = new GameObject("LifeBar").transform;
+                bar.SetParent(root.transform, false);
+                bar.localPosition = position;
+                // Quads face -Z; LifeBar copies the camera's rotation, so -Z points at the camera.
+                GameObject background = SetupUtils.Visual(PrimitiveType.Quad, bar, "Background", Vector3.zero, new Vector3(1.2f, 0.14f, 1f), back);
+                // The fill scales from its left edge: a pivot at x = -0.58 with the quad offset half its width.
+                var pivot = new GameObject("FillPivot").transform;
+                pivot.SetParent(bar, false);
+                pivot.localPosition = new Vector3(-0.58f, 0f, -0.01f);   // slightly in front of the background
+                GameObject fill = SetupUtils.Visual(PrimitiveType.Quad, pivot, "Fill", new Vector3(0.58f, 0f, 0f), new Vector3(1.16f, 0.1f, 1f), fillMaterial);
+                foreach (Renderer r in new[] { background.GetComponent<Renderer>(), fill.GetComponent<Renderer>() })
+                {
+                    r.shadowCastingMode = ShadowCastingMode.Off;
+                    r.receiveShadows = false;
+                }
+
+                var lifeBar = bar.gameObject.AddComponent<UI.LifeBar>();
+                SetupUtils.SetValue(lifeBar, "health", p => p.objectReferenceValue = root.GetComponent<Combat.Health>());
+                SetupUtils.SetValue(lifeBar, "fill", p => p.objectReferenceValue = pivot);
+                SetupUtils.SetValue(lifeBar, "fillRenderer", p => p.objectReferenceValue = fill.GetComponent<Renderer>());
+                SetupUtils.SetLayerRecursively(bar.gameObject, layer);
+                PrefabUtility.SaveAsPrefabAsset(root, MonsterPrefabPath);
+                u.Linked($"Monster.prefab LifeBar → two unlit quads on layer {WorldUiLayer} (was a world-space canvas)");
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(root);
             }
         }
 

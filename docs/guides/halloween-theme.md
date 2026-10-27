@@ -21,6 +21,7 @@ Time: about 3 minutes, plus a short look around.
 | 6d | Recover a ghost | It turns warm white and pauses ~1 s (chime, item drops), then rises, spins and fades away |
 | 6e | Let a ghost cast at you (night) | Each spell is a glowing purple orb with a short fading trail, and it lights the ground purple as it flies |
 | 6f | Recover a monster; look at its drop; place items on the puzzles | Key, crystal and artifact glow in their colour and light the ground under them; placed items keep glowing on the door / altar / pedestal; the puzzle orbs and switch pads glow too |
+| 6g | Look at far puzzle labels and ghost HP bars (> 15 m) | Sharp, not blurred by the depth of field; a ghost behind a wall or tombstone still hides its bar |
 | 6b | Ground and walls | Dark dirt ground; wrought-iron fences on all four sides; walking into a fence still stops you; the camera doesn't go through it |
 | 7 | **Validate Wiring** | All required references set |
 
@@ -40,6 +41,7 @@ Time: about 3 minutes, plus a short look around.
 | `Environment/Boundary/Fence_North/South/East/West` | 16 fence segments each; the `Wall_*` cubes are invisible but still collide |
 
 ## Tuning (art is yours)
+- **Sharp labels / HP bars**: anything on the **WorldUI** layer is drawn by `Main Camera/WorldUICamera` after the blur. To blur them again, remove WorldUICamera from the Main Camera's Stack and add WorldUI back to its Culling Mask. HP bar colours: `Materials/Minimap/MI_LifeBarBack`; the fill colour comes from `LifeBar` (Full / Low Color).
 - **Spell glow** (`Prefabs/Greybox/SpellProjectile`): `Glow` light → Intensity / Range; Trail Renderer → Time (length), Width; `Materials/M_SpellCore` → Base Color (keep it only slightly brighter than 1: the post profile has no tonemapping, so stronger values turn white).
 - **Item glow**: `Materials/M_Key`, `M_Crystal`, `M_Artifact` → Emission colour; `Pickup_*/Model/Glow` light → Intensity / Range. Your own artifact model: keep the `Glow` child inside `Model` when you delete `Base` and `Orb`, and the glow comes along (also on the pedestal).
 - Puzzle orbs and switch pads glow after rerunning **Setup → Sprint 3** (it repairs their emission setting).
