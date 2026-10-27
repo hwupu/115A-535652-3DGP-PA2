@@ -14,3 +14,11 @@ The spec: a minimap that shows the player and the puzzle locations, toggled with
 
 ## Consequences
 Icons stay readable with any art; setup scripts add icons to prefabs so model swaps don't affect the map. Proven PA1 code can be ported, which lowers risk.
+
+## Amendment (2026-10-27, Sprint 3 implementation)
+- Icons share one unlit material (`MI_Icon`); each `MinimapIcon` applies its colour with a MaterialPropertyBlock at runtime. Static icons (ground, walls) don't run code, so they use their own materials (`MI_Ground`, `MI_Wall`): a property block set in the Editor is not saved with the scene.
+- Wall icons are measured from the wall **colliders** (the wall renderers are hidden behind the Halloween fences).
+- A monster icon turns pale when its `Health` is depleted; puzzle icons follow the puzzle status colour.
+- `MinimapIcon` re-applies the Minimap layer to itself in `Awake`, so a setup rerun that re-layers the player can't make the arrow appear in the 3D view.
+- `MinimapToggle` lives on the HUD (not on the panel it hides, which would stop listening) and disables the minimap camera while hidden.
+

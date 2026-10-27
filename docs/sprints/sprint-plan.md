@@ -11,7 +11,7 @@ Deadline **2026-11-29** (E3). PO decisions: development starts the week of Nov 2
 | 4 — Art, Audio & Polish | Nov 17 – Nov 21 | Theme chosen and integrated by the PO; BGM; story framing; juice; code quality + demo cheat sheets | PB-25 … PB-29 | 10 (+ quality) |
 | 5 — Buffer, Report & Submit | Nov 22 – Nov 29 | Final build, full rubric pass, report PDF, zip + scripts uploaded to E3 | PB-30, PB-31 | +10 % bonus |
 
-Status (2026-10-27): Sprints 0–2 done on Oct 27 (55 / 100 marks verified). **Sprint 3 paused by the PO** ("we are ahead"); meanwhile PB-26 art work (melee swing, Halloween assets) is pulled forward on request.
+Status (2026-10-27): Sprints 0–2 done on Oct 27 (55 / 100 marks verified). Sprint 3 was paused by the PO ("we are ahead") while PB-26 art work (melee swing, Halloween assets) was pulled forward; **Sprint 3 resumed the same day** and is in PO review.
 
 Notes
 - Feature complete by Nov 16 leaves two weeks of slack for the PO's art work, play-test feedback and the report. Anything late moves into the Sprint 5 buffer, never the report.

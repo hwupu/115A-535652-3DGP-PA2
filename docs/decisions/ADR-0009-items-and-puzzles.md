@@ -19,3 +19,12 @@ Five puzzles (15 marks) plus completion logic (10) and item collection (10). The
 
 ## Consequences
 New puzzles of an existing type are scene configuration, not code. Items and puzzles are identified by component and asset, not by tag or name. The puzzle set is easy to explain: three behaviours cover five puzzles.
+
+## Amendment (2026-10-27, Sprint 3 implementation)
+- **Placed items are shown as copies of their pickup's `Model`** (`PuzzleItem.Visual`) on slot anchors (key in front of the door, crystals on the altar, artifact on the pedestal), colliders stripped. A model swap in a `Pickup_*` prefab (e.g. the PO's artifact) therefore shows up on its puzzle with no extra wiring.
+- Socket puzzles take **as many matching items as the player carries** (up to what is still needed) on entering the zone, so crystals can be delivered one at a time or all at once.
+- Pressure switches **latch** (stay on), so one player can activate two switches.
+- `PuzzleManager` holds a serialized list (set by the setup in spec order) instead of searching the scene, so the HUD order is fixed; an empty list logs an error (fail loudly). It calls `GameStateManager.Win()` directly (no `AllSolved` event needed yet).
+- The gate opens **one frame after** the 4th puzzle is solved, so "… solved! +200" is announced before "The gate is open!"; the HUD message line keeps the previous line while it is still showing (bug found by the smoke test).
+- Feedback shared in the `Puzzle` base: status colours (orange unsolved, red locked, green solved) on the status orb and the minimap icon via a MaterialPropertyBlock, and an optional "opening" (door, gate bars) that slides away. A floating `PuzzleLabel` per site answers the Sprint 2 retro ("placeholders must explain themselves").
+

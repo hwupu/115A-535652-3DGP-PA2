@@ -26,6 +26,12 @@ namespace PuzzleMaster.Core
         public static event Action<float, float> PlayerHit;
         /// <summary>The player picked up an item: its display name.</summary>
         public static event Action<string> ItemCollected;
+        /// <summary>A puzzle made progress (item placed, switch pressed, gate opened). Position = puzzle.</summary>
+        public static event Action<Vector3> PuzzleProgressed;
+        /// <summary>A puzzle was solved. Position = puzzle.</summary>
+        public static event Action<Vector3> PuzzleSolved;
+        /// <summary>A short message for the player (puzzle hints, "solved!"), shown by the HUD.</summary>
+        public static event Action<string> PuzzleMessage;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStatics()
@@ -38,6 +44,9 @@ namespace PuzzleMaster.Core
             SpellCast = null;
             PlayerHit = null;
             ItemCollected = null;
+            PuzzleProgressed = null;
+            PuzzleSolved = null;
+            PuzzleMessage = null;
         }
 
         // Only this class can invoke its events, so other classes call these methods.
@@ -48,5 +57,8 @@ namespace PuzzleMaster.Core
         public static void RaiseSpellCast(Vector3 position) => SpellCast?.Invoke(position);
         public static void RaisePlayerHit(float current, float max) => PlayerHit?.Invoke(current, max);
         public static void RaiseItemCollected(string itemName) => ItemCollected?.Invoke(itemName);
+        public static void RaisePuzzleProgressed(Vector3 position) => PuzzleProgressed?.Invoke(position);
+        public static void RaisePuzzleSolved(Vector3 position) => PuzzleSolved?.Invoke(position);
+        public static void RaisePuzzleMessage(string message) => PuzzleMessage?.Invoke(message);
     }
 }

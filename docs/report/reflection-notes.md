@@ -22,10 +22,16 @@ Report outline: 1) Use of AI tools · 2) Adoption of Scrum · 3) Lessons (short)
 - (2026-10-27) A failing test is information, not a verdict: the AI's own new wait in the test caused an auto-pickup, and the neighbouring check proved the behaviour was correct. Reading failures in context avoided "fixing" working game code.
 - (2026-10-27) Documentation drift between projects: PA1's guide said blue fog, PA1's scene said purple. The AI went to the source of truth (the scene file) when asked to "bring over" the look.
 
+- (2026-10-27) Tests that drive the whole loop catch what reading code doesn't: the "gate is open" message was lost purely because of event-subscription order (which object enabled first). Each piece was correct in isolation; only the end-to-end smoke test saw the message disappear.
+- (2026-10-27) Designing for the PO's next step: the PO said they will find their own artifact model. Showing placed items as a copy of the pickup's model means their swap "just works" on the pedestal too — a small design choice that removes a future wiring task.
+
 ## Scrum — observations
 - (2026-10-27) Sprint 0 as a real sprint: decisions before artifacts. Fifteen PO questions answered in one round set the backlog, the ADRs and the sprint plan.
 - (2026-10-27) Carrying a retro across projects: PA1 dropped story points as overhead for a solo project; PA2 starts without them, and keeps the parts that paid off (backlog as source of truth, DoD, decisions log, board).
 - (2026-10-27) A one-week buffer is planned in from the start (PO decision), so the report and final build are not squeezed by late features as they could have been in PA1.
+
+- (2026-10-27) Retro actions carried forward: "placeholders must explain themselves" (Sprint 2) became floating labels on every puzzle site in Sprint 3, after the same markers confused the PO a second time.
+- (2026-10-27) Pausing and resuming a sprint on the PO's word cost nothing because the backlog and sprint plan were the source of truth; the art detour (PB-26) was logged as "pulled forward" rather than silently mixed in.
 
 ## User's self-reflection (to be written by the User)
 - What did I learn?

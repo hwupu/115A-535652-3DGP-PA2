@@ -26,6 +26,8 @@ namespace PuzzleMaster.Items
         private bool collected;
 
         public ItemDefinition Item => item;
+        /// <summary>The visual child (Model). Puzzles copy it to show a placed item (ADR-0009).</summary>
+        public Transform Visual => visual;
 
         private void Awake()
         {
