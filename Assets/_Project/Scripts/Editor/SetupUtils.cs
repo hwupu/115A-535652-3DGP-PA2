@@ -196,6 +196,28 @@ namespace PuzzleMaster.EditorTools
             so.ApplyModifiedProperties();
         }
 
+        /// <summary>
+        /// Finds a child by name, or creates it as a primitive (for greybox level geometry).
+        /// An existing object is returned untouched, so the PO's moved / resized / restyled pieces are kept.
+        /// </summary>
+        public GameObject FindOrCreatePrimitive(Transform parent, string name, PrimitiveType type, Vector3 localPosition,
+            Vector3 localScale, Material material, bool keepCollider = true)
+        {
+            Transform existing = parent.Find(name);
+            if (existing != null) return existing.gameObject;
+
+            GameObject go = GameObject.CreatePrimitive(type);
+            go.name = name;
+            Undo.RegisterCreatedObjectUndo(go, "Setup");
+            go.transform.SetParent(parent, false);
+            go.transform.localPosition = localPosition;
+            go.transform.localScale = localScale;
+            go.GetComponent<Renderer>().sharedMaterial = material;
+            if (!keepCollider) Object.DestroyImmediate(go.GetComponent<Collider>());
+            Created($"{type} {parent.name}/{name}");
+            return go;
+        }
+
         /// <summary>Creates a primitive as a visual-only child (its collider removed).</summary>
         public static GameObject Visual(PrimitiveType type, Transform parent, string name, Vector3 localPosition,
             Vector3 localScale, Material material, Vector3 localEuler = default)

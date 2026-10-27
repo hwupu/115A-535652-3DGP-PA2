@@ -23,5 +23,10 @@ Use the **Input System package** only, with our own `InputActionAsset` in `Asset
 
 A `PlayerInputReader` wraps the asset and exposes values/events; the game state (ADR-0006) enables the Gameplay map only while Playing. The template's `InputSystem_Actions.inputactions` is removed in Sprint 1 once ours is the project-wide asset.
 
+## Amendment (2026-10-27, Sprint 1)
+- Map names are `Gameplay`, `Screens`, `Global` (the table's "UI-state" = `Screens`).
+- The wrapper is `GameInput` in **Core**, not a `PlayerInputReader` in Player: the game state (SPACE / R / ESC) and the config loader (F5) are Core systems, and Core must not depend on Player. Player, Cameras and UI depend on Core.
+- `Sprint1Setup` generates `PlayerControls.inputactions` from code (`InputActionAsset.AddActionMap / AddAction`, saved with `ToJson`), removes the template asset and clears it as the project-wide actions asset. `GameInput` references our asset directly.
+
 ## Consequences
 Bindings live in one place and match the spec table. Slightly more setup than legacy input. Gating gameplay input by state is one call instead of `if` checks everywhere.

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace PuzzleMaster.Core
 {
@@ -22,9 +21,8 @@ namespace PuzzleMaster.Core
     {
         public const string FileName = "config.json";
 
-        // An action reference (not a PlayerInputReader) keeps Core independent of the Player folder.
-        [Tooltip("Input action that reloads config.json at runtime (F5). Optional: without it, reload is unavailable.")]
-        [SerializeField, OptionalReference] private InputActionReference reloadAction;
+        [Tooltip("Input source for F5 (reload). Optional: without it, reload is unavailable.")]
+        [SerializeField, OptionalReference] private GameInput input;
 
         // Static so any script can read the config without a scene reference.
         /// <summary>The active config, or null when no ConfigLoader exists (callers then use "?? inspectorValue").</summary>
@@ -50,22 +48,18 @@ namespace PuzzleMaster.Core
         // destroyed loader never receives events (no dangling delegates).
         private void OnEnable()
         {
-            if (reloadAction == null) return;
-            reloadAction.action.performed += OnReloadPerformed;
-            reloadAction.action.Enable();
+            if (input != null) input.ReloadConfigPressed += Reload;
         }
 
         private void OnDisable()
         {
-            if (reloadAction != null) reloadAction.action.performed -= OnReloadPerformed;
+            if (input != null) input.ReloadConfigPressed -= Reload;
         }
 
         private void OnDestroy()
         {
             Current = null;   // don't leave a stale static config behind after the scene unloads
         }
-
-        private void OnReloadPerformed(InputAction.CallbackContext _) => Reload();
 
         /// <summary>Re-reads config.json at runtime (F5), so values can be tuned without rebuilding.</summary>
         public void Reload()

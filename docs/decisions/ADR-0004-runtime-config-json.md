@@ -15,5 +15,8 @@ Many PA2 values need play-test tuning (speed, HP, damage, spell and heal rates) 
 - When no `ConfigLoader` is in the scene, `ConfigLoader.Current` is null and components fall back to their Inspector values.
 - `BuildScript` places an editable copy of `config.json` next to the `.app` (never overwriting an existing one).
 
+## Amendment (2026-10-27, Sprint 1)
+F5 comes from `GameInput.ReloadConfigPressed` (Core) instead of an `InputActionReference`, so there is one input owner. A reload while the countdown runs does not change the running clock; before the start it updates the start time.
+
 ## Consequences
 The PO can tune and demo without rebuilding. Inspector values become fallbacks; the README documents the keys. New tunables are added here and in `GameConfig` together.

@@ -9,6 +9,8 @@ Report outline (1–2 pages, ≥ 500 words): 1) Use of AI tools · 2) Adoption o
 - (2026-10-27) The PO again improved on the AI's options: rather than choosing between "player HP" and "no player HP", the PO asked for HP tracked in the background with the death line commented out, and the same pattern for monster self-heal. Designing for the *demo conversation with the TA* is a product insight the AI did not offer.
 - (2026-10-27) The AI's own sandbox verification caught two bugs in its setup script (an over-broad guard; a delete-order problem that made an asset unloadable) before the PO ran anything. Each fix exposed the next problem, so "run it again after the fix" mattered as much as the first run.
 - (2026-10-27) Knowing when to ask: the AI could have edited project settings with the Editor open or skipped the setup run, but stopped and gave the PO three options. Quitting Unity took the PO ten seconds and kept the "one clean initial commit" plan intact.
+- (2026-10-27) "It compiles and the setup ran" was not enough: only running the *built game* revealed that the TMP labels had no font. Each extra verification layer (compile → setup run → build → headless run) caught something the previous one could not.
+- (2026-10-27) The AI had to reason about the human's real situation in the Editor: a debug menu in the Inspector is useless while the game locks the cursor. Designing the test steps is part of designing the feature.
 
 ## Scrum — observations
 - (2026-10-27) Sprint 0 as a real sprint: decisions before artifacts. Fifteen PO questions answered in one round set the backlog, the ADRs and the sprint plan.
