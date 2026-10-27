@@ -1,7 +1,8 @@
 # Reflection Notes (raw material for the report)
 
-Capture observations **as they happen**. The report must show genuine reflection, so these notes matter more than polish.
-Report outline (1–2 pages, ≥ 500 words): 1) Use of AI tools · 2) Adoption of Scrum · 3) Reflection · Asset credits.
+Capture observations **as they happen**; they are the raw material for the report.
+PA2 spec (Deliverables §2): a PDF, **1–2 pages, at least 500 words**, describing **how AI tools were used** and **how Scrum was adopted**, and **acknowledging all third-party assets**. Bonus +10 %; missing = −10 %. Unlike PA1, a separate "reflection" section is not required, but honest observations make the AI and Scrum sections credible.
+Report outline: 1) Use of AI tools · 2) Adoption of Scrum · 3) Lessons (short) · Asset credits.
 
 ## AI-assisted development — observations
 - (2026-10-27) Reusing a proven setup: PA1's process artifacts and tooling (setup scripts, wiring validator, config loader, build script) were ported in one session. The second project starts where the first one ended, including its lessons (fail loudly, verify in a clone, verify file state after a session).
@@ -11,6 +12,7 @@ Report outline (1–2 pages, ≥ 500 words): 1) Use of AI tools · 2) Adoption o
 - (2026-10-27) Knowing when to ask: the AI could have edited project settings with the Editor open or skipped the setup run, but stopped and gave the PO three options. Quitting Unity took the PO ten seconds and kept the "one clean initial commit" plan intact.
 - (2026-10-27) "It compiles and the setup ran" was not enough: only running the *built game* revealed that the TMP labels had no font. Each extra verification layer (compile → setup run → build → headless run) caught something the previous one could not.
 - (2026-10-27) The AI had to reason about the human's real situation in the Editor: a debug menu in the Inspector is useless while the game locks the cursor. Designing the test steps is part of designing the feature.
+- (2026-10-27) Testing what a human would otherwise have to click through: a throwaway in-game script drove the built game headlessly (teleport, swing, wait) and checked 15 behaviours. The AI can now verify *gameplay logic*, not just compilation, before the PO play-tests; the PO's test then focuses on feel.
 
 ## Scrum — observations
 - (2026-10-27) Sprint 0 as a real sprint: decisions before artifacts. Fifteen PO questions answered in one round set the backlog, the ADRs and the sprint plan.

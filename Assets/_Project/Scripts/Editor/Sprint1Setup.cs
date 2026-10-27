@@ -35,7 +35,7 @@ namespace PuzzleMaster.EditorTools
         private const string TemplateInputActionsPath = "Assets/InputSystem_Actions.inputactions";
         private const string ProjectWideActionsKey = "com.unity.input.settings.actions";
         private const string TmpEssentialsPackage = "Packages/com.unity.ugui/Package Resources/TMP Essential Resources.unitypackage";
-        private const string TmpFontPath = "Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF.asset";
+        internal const string TmpFontPath = "Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF.asset";
 
         private const float RegionSize = 80f;       // ground is RegionSize × RegionSize metres
         private const float WallHeight = 3f;
@@ -360,7 +360,7 @@ namespace PuzzleMaster.EditorTools
         }
 
         /// <summary>Finds or creates a full-screen panel (optionally with a background colour).</summary>
-        private static RectTransform Panel(SetupUtils u, Transform parent, string name, Color? background, bool activeByDefault)
+        internal static RectTransform Panel(SetupUtils u, Transform parent, string name, Color? background, bool activeByDefault)
         {
             Transform existing = parent.Find(name);
             if (existing != null) return (RectTransform)existing;
@@ -387,7 +387,7 @@ namespace PuzzleMaster.EditorTools
         /// Finds or creates a TextMeshPro label. The text, size and position are only set when it is
         /// created, so the PO can restyle it afterwards and a rerun keeps the changes.
         /// </summary>
-        private static TMP_Text Text(SetupUtils u, Transform parent, string name, string text, float size,
+        internal static TMP_Text Text(SetupUtils u, Transform parent, string name, string text, float size,
             Vector2 anchor, Vector2 position, Vector2 boxSize, TextAlignmentOptions alignment, TMP_FontAsset font)
         {
             Transform existing = parent.Find(name);

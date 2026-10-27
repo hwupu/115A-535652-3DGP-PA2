@@ -10,7 +10,11 @@ After editing, return to Unity, wait for the recompile, then press Play. Both st
 
 | # | Behaviour | Default (shipped) | Alternative | File / line | Added in |
 |---|---|---|---|---|---|
-| 1 | Player at 0 HP | Nothing happens: spells hit, background HP drops, no gameplay effect (spec: lose = timer only) | Respawn at the start position | _(Sprint 2, PB-10)_ | ⬜ |
-| 2 | Monster self-heal | Heal `monsterHealAmount` every `monsterHealInterval` (10 s) while damaged | Heal once, the first time HP drops below 50 % | _(Sprint 2, PB-13)_ | ⬜ |
+| 1 | Player at 0 HP | Nothing happens: spells hit, background HP drops (Console: "background only, no gameplay effect"), no gameplay effect (spec: lose = timer only) | Respawn at the start position with full HP | `Assets/_Project/Scripts/Player/PlayerHitResponse.cs:40` — **uncomment** `health.Depleted += RespawnAtStart;` | Sprint 2 ✅ |
+| 2 | Monster self-heal | `HealEveryInterval();` active: heal `monsterHealAmount` (20) every `monsterHealInterval` (10 s) while damaged | `HealOnceBelowHalf();` active: heal once, the first time HP drops below 50 % | `Assets/_Project/Scripts/Monsters/MonsterSelfHeal.cs:47–48` — comment one line, uncomment the other (**exactly one** active) | Sprint 2 ✅ |
+
+### How to show them to the TA (in the Editor)
+1. **Respawn:** set `"spellDamage": 50.0` in `config.json` (2 spells = 0 HP), uncomment the line, Play, stand near a monster. After the second spell the player jumps back to the start (Console: "respawning at the start (demo toggle)"). Re-comment afterwards and set `spellDamage` back to `10.0`.
+2. **Heal once below 50 %:** swap the two lines, Play, hit a monster 3 times (100 → 25 HP): it heals once (+20, green flash, Console "healed itself") and never again. With the default line, it heals +20 every 10 s while damaged.
 
 Rates and amounts are in `config.json` (no recompile needed; F5 reloads).
