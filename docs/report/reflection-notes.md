@@ -30,7 +30,7 @@ Report outline: 1) Use of AI tools · 2) Adoption of Scrum · 3) Lessons (short)
 
 - (2026-10-27) A workaround is not a diagnosis: for the spells the AI side-stepped lost emission with an unlit material; when the same need came back for the pickups it ran small controlled experiments and found the real cause (call order vs URP's material validation). The fix then also repaired an earlier, unnoticed victim (the puzzle orbs).
 
-- (2026-10-28) Verification has a cost the PO can see: a "small" polish request (sharp labels) consumed many rounds because offline rendering, batch players and editor play mode each misrepresent camera stacks differently. The PO's "it's fine if it can't be solved" was a useful signal to time-box; the right response was a clear status and a keep / drop choice.
+- (2026-10-28) Verification has a cost the PO can see: a "small" polish request (sharp labels) consumed many rounds because offline rendering, batch players and editor play mode each misrepresent camera stacks differently. The PO's "it's fine if it can't be solved" was a useful signal to time-box; the right response was a clear status and a keep / drop choice. The PO then chose to drop it: a working feature can still be the wrong trade-off (more moving parts — an extra camera, a rebuilt life bar — for a cosmetic gain), and that call is the PO's.
 
 ## Scrum — observations
 - (2026-10-27) Sprint 0 as a real sprint: decisions before artifacts. Fifteen PO questions answered in one round set the backlog, the ADRs and the sprint plan.
