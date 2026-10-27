@@ -41,6 +41,9 @@ Milestone: [Sprint 2 — Monsters & Combat](https://github.com/hwupu/115A-535652
 - Done: PB-09 … PB-16 (#10–#17). Rubric rows now ✅: monster attack / recovery 10, item collection 10, score display 4, monster life bars 4, hit sound 5 → with Sprint 1, **55 / 100 marks** verified.
 - Backlog changes: theme decided (Halloween, PA1 assets, ADR-0011); melee-swing animation requested (PB-26 work pulled forward). **Sprint 3 paused by the PO** ("we are ahead"): ~2 weeks ahead of the plan.
 
+## After the Review: PB-26 pulled forward (PO request, Sprint 3 paused)
+- **2026-10-27**: PA1 assets imported (ADR-0011). Melee swing for the witch (ADR-0012): Claude scripted Blender headless (no MCP), derived `MeleeSwing` from the throw clip, rendered preview frames to check the motion, and wrote `PlayerCharacterSetup`. Verification found **two silent export bugs** before the PO saw anything: the clip bound to 0 / 167 bones (armature root collapsed by Unity) and every bone position was 100× too large ("FBX Units Scale" vs the PA1 FBX's "All Local"). Also the witch's bind pose lies on its back, so the sword is placed in the sampled Idle pose. Final: 167 / 167 paths, rendered swing poses look right, built-game runtime test PASS (MeleeSwing state entered, sword moves 0.87 m, back to Locomotion). Guide: `docs/guides/witch-melee-swing.md`.
+
 ## Retro (drafted by SM, confirmed by PO)
 - **Keep:** the headless gameplay smoke test before hand-off (15/15 → the PO's checklist passed first time); demo toggles with exact line numbers.
 - **Problem:** greybox markers were mistaken for items. The guide explained them, but the scene didn't.

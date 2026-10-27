@@ -15,6 +15,9 @@ Report outline: 1) Use of AI tools · 2) Adoption of Scrum · 3) Lessons (short)
 - (2026-10-27) Testing what a human would otherwise have to click through: a throwaway in-game script drove the built game headlessly (teleport, swing, wait) and checked 15 behaviours. The AI can now verify *gameplay logic*, not just compilation, before the PO play-tests; the PO's test then focuses on feel.
 - (2026-10-27) A play-tester stepped on placeholder discs expecting items. The AI-built greybox was "correct" but ambiguous to a human; the guide described the discs, but the scene itself did not. Placeholders need to explain themselves.
 - (2026-10-27) Tool availability shapes AI workflows: no Blender MCP in this session, but the AI found Blender's own Python API in background mode as an equivalent, scriptable and verifiable path.
+- (2026-10-27) A check that passes for the wrong reason is worse than no check: "lower body unchanged at t=0" passed because the clip wasn't bound at all. Pairing each check with a "did anything happen?" check (paths matched, hand moved) exposed it.
+- (2026-10-27) Documentation from an earlier AI agent (PA1's Blender handoff) was wrong about the export scaling; trusting it produced a 100× bug. Handoff docs need the same verification as code.
+- (2026-10-27) Multimodal verification: the AI rendered frames in Blender and screenshots in Unity and looked at them, which caught a vanished sword that every numeric log line had missed.
 
 ## Scrum — observations
 - (2026-10-27) Sprint 0 as a real sprint: decisions before artifacts. Fifteen PO questions answered in one round set the backlog, the ADRs and the sprint plan.

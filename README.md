@@ -54,6 +54,7 @@ docs/
   ai-log/               AI prompt log (evidence for the report)
   asset-credits.md      third-party asset acknowledgements
   report/               reflection notes, report source, build script, final PDF
+Tools/Blender/          Blender Python scripts (e.g. the witch's melee-swing clip, ADR-0012)
 CLAUDE.md               context file for the AI assistant
 ```
 

@@ -10,7 +10,7 @@ The repo is **public** (ADR-0001): only commit assets whose license allows redis
 - "Halloween graveyard pack" (https://skfb.ly/pr9W6) by rudolfs is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
 - "The little Witch" (https://skfb.ly/oQxwO) by Antropik is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
 - "Boomerang" (https://skfb.ly/6tvtu) by Muhammad Ari Kurniawan is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
-- Rig and animation clips (Idle, Walk, Run, Jump, ThrowBoomerang) for the Little Witch were made by the PO in Blender with help from an AI agent during PA1.
+- Rig and animation clips (Idle, Walk, Run, Jump, ThrowBoomerang) for the Little Witch were made by the PO in Blender with help from an AI agent during PA1. The MeleeSwing clip (PA2) was derived from them by a Blender Python script written by Claude (`Tools/Blender/make_melee_swing.py`, ADR-0012).
 
 ## Skybox
 - "Free Stylized Hand-Painted Skybox" from the Unity Asset Store, under the Unity Asset Store Standard EULA. Not in the public repo (git-ignored), but included in the submission zip. _(Publisher name / URL: to fill in from the Asset Store page.)_

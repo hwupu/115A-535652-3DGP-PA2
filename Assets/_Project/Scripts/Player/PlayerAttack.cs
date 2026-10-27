@@ -33,6 +33,9 @@ namespace PuzzleMaster.Player
         [Tooltip("Seconds the visual sweep takes.")]
         [SerializeField] private float swingDuration = 0.15f;
 
+        /// <summary>Raised on every swing that passes the cooldown (hit or miss), e.g. for the swing animation.</summary>
+        public event System.Action Swung;
+
         private readonly Collider[] overlaps = new Collider[32];
         private readonly HashSet<Health> hitThisSwing = new HashSet<Health>();
         private float nextSwingTime;
@@ -72,6 +75,7 @@ namespace PuzzleMaster.Player
                 hits++;
             }
 
+            Swung?.Invoke();
             GameEvents.RaiseAttackSwung(transform.position);
             if (swingPivot != null) StartCoroutine(SweepVisual());
             if (hits == 0) Debug.Log("Swing: no monster in reach");
