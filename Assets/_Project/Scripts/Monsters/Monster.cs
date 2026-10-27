@@ -12,13 +12,15 @@ namespace PuzzleMaster.Monsters
     /// - Damaged: flashes red (green when it heals). At 0 HP it is **recovered**, not killed:
     ///   it stops moving and casting, turns to the recovered colour, announces
     ///   GameEvents.MonsterRecovered (+100 score, sound) and drops its puzzle item (if any).
-    /// Colours are applied with a MaterialPropertyBlock on the Model's renderers, so any model works
-    /// (theme-agnostic) and the shared materials are never modified.
+    /// Colours are applied with a MaterialPropertyBlock on the Model's renderers (base colour and, for
+    /// glowing materials such as the ghost's, the emission colour), so any model works (theme-agnostic)
+    /// and the shared materials are never modified.
     /// </summary>
     [RequireComponent(typeof(Health))]
     public class Monster : MonoBehaviour
     {
         private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
+        private static readonly int EmissionColorId = Shader.PropertyToID("_EmissionColor");
 
         [Header("Behaviour")]
         [Tooltip("Stationary, or Patrol between the waypoints below.")]
@@ -51,6 +53,8 @@ namespace PuzzleMaster.Monsters
         [SerializeField] private Color healColor = new Color(0.3f, 1f, 0.4f);
         [Tooltip("Seconds a hit / heal flash lasts.")]
         [SerializeField] private float flashDuration = 0.15f;
+        [Tooltip("Glow strength of a tint on emissive materials (0 = base colour only). No effect on non-glowing materials.")]
+        [SerializeField, Range(0f, 2f)] private float tintGlow = 0.6f;
 
         private Health health;
         private Renderer[] renderers;
@@ -181,6 +185,7 @@ namespace PuzzleMaster.Monsters
             {
                 r.GetPropertyBlock(block);
                 block.SetColor(BaseColorId, color);
+                block.SetColor(EmissionColorId, color * tintGlow);   // ignored unless the material glows
                 r.SetPropertyBlock(block);
             }
         }

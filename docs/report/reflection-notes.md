@@ -18,6 +18,7 @@ Report outline: 1) Use of AI tools · 2) Adoption of Scrum · 3) Lessons (short)
 - (2026-10-27) A check that passes for the wrong reason is worse than no check: "lower body unchanged at t=0" passed because the clip wasn't bound at all. Pairing each check with a "did anything happen?" check (paths matched, hand moved) exposed it.
 - (2026-10-27) Documentation from an earlier AI agent (PA1's Blender handoff) was wrong about the export scaling; trusting it produced a 100× bug. Handoff docs need the same verification as code.
 - (2026-10-27) Multimodal verification: the AI rendered frames in Blender and screenshots in Unity and looked at them, which caught a vanished sword that every numeric log line had missed.
+- (2026-10-27) Not every anomaly is a bug: the AI saw red ghosts in its own test renders and, instead of "fixing" the material, ran controlled experiments until the cause (first-frame texture upload in batch rendering) was clear. Evidence before action applies to the AI's own tooling too.
 
 ## Scrum — observations
 - (2026-10-27) Sprint 0 as a real sprint: decisions before artifacts. Fifteen PO questions answered in one round set the backlog, the ADRs and the sprint plan.
