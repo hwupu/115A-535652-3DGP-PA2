@@ -20,6 +20,7 @@ namespace PuzzleMaster.Audio
         [SerializeField] private AudioClip music;
 
         [Header("Mix")]
+        [Tooltip("Music volume (0–1), kept below the sound effects.")]
         [SerializeField, Range(0f, 1f)] private float volume = 0.3f;
         [Tooltip("Seconds the music takes to fade out on Win / Lose.")]
         [SerializeField, Min(0f)] private float fadeOutSeconds = 1.5f;
@@ -54,6 +55,7 @@ namespace PuzzleMaster.Audio
             if (gameState != null) gameState.StateChanged -= OnStateChanged;
         }
 
+        // RUBRIC 4a · Background music (5): starts with gameplay (SPACE), loops, fades out on Win / Lose.
         private void OnStateChanged(GameState state)
         {
             if (state == GameState.Playing) Play();

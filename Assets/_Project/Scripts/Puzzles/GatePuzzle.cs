@@ -67,6 +67,7 @@ namespace PuzzleMaster.Puzzles
             TryUnlock();
         }
 
+        // RUBRIC 2a · Five puzzles (15): puzzle 5, the final gate opens only after puzzles 1–4.
         private void TryUnlock()
         {
             if (unlocked || SolvedPrerequisites < prerequisites.Length) return;

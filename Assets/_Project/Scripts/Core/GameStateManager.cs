@@ -33,6 +33,8 @@ namespace PuzzleMaster.Core
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStatics() => skipIntroOnce = false;   // for "Enter Play Mode" without domain reload
 
+        // ---------- Setup ----------
+
         private void OnEnable()
         {
             if (input != null)
@@ -58,6 +60,7 @@ namespace PuzzleMaster.Core
             if (timer != null) timer.Expired -= OnTimerExpired;
         }
 
+        // RUBRIC 3a · Introduction screen (4): the game starts in Intro (frozen world) until SPACE.
         // Start (not Awake) so every listener has subscribed in its OnEnable before the first event.
         private void Start()
         {
@@ -66,7 +69,9 @@ namespace PuzzleMaster.Core
             Enter(first);
         }
 
-        /// <summary>Called by the puzzle system when all five puzzles are solved (Sprint 3, PB-17).</summary>
+        // ---------- Transitions (who may change the state, and when) ----------
+
+        /// <summary>Called by PuzzleManager when all five puzzles are solved (PB-17).</summary>
         public void Win()
         {
             if (State == GameState.Playing) Enter(GameState.Won);
@@ -77,11 +82,13 @@ namespace PuzzleMaster.Core
             if (State == GameState.Intro) Enter(GameState.Playing);
         }
 
+        // RUBRIC 3e · Win / lose screens (4): timer at 0 → Lost ("Time's Up!"). Win comes from PuzzleManager → Win().
         private void OnTimerExpired()
         {
             if (State == GameState.Playing) Enter(GameState.Lost);
         }
 
+        // Spec control: R restarts from the win / lose screen (reloads the scene).
         private void OnRestartPressed()
         {
             if (State != GameState.Won && State != GameState.Lost) return;
@@ -90,6 +97,7 @@ namespace PuzzleMaster.Core
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
 
+        // Spec control: ESC quits (Global input map, works in every state).
         /// <summary>ESC: quits the app; in the Editor, stops Play Mode instead.</summary>
         public void Quit()
         {
@@ -100,6 +108,8 @@ namespace PuzzleMaster.Core
             Application.Quit();
 #endif
         }
+
+        // ---------- Entering a state ----------
 
         /// <summary>Applies everything that depends on the state, then announces it.</summary>
         private void Enter(GameState state)
@@ -130,7 +140,9 @@ namespace PuzzleMaster.Core
             StateChanged?.Invoke(state);
         }
 
-        // Inspector ⋮ menu (in Play Mode) to test the end screens before the puzzles exist.
+        // ---------- Debug (Inspector ⋮ menu) ----------
+
+        // Play Mode only: jump to the end screens without playing through.
         // They also work from the Intro screen, where the cursor is free to click the Inspector.
         [ContextMenu("Debug: Win now")]
         private void DebugWin()

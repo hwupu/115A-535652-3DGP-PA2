@@ -20,6 +20,7 @@
 - Identify objects by component (`Monster`, `PuzzleItem`, `Puzzle`, `PlayerController`…), not by tag strings or names.
 - Prefab convention: the root pivot sits at the ground contact (bottom center); visuals go in a `Model` child; the root holds the Rigidbody/collider/gameplay components. Model swaps replace only `Model`.
 - **Demo toggles** (PO decision): some behaviours are switched by commenting/uncommenting one marked line so the PO can show the TA alternatives (player death/respawn, monster self-heal mode; ADR-0008). Mark each one with a `// DEMO TOGGLE:` comment explaining both states, keep the alternative compiling when uncommented, and list it in `docs/guides/demo-toggles.md`. Find them with `grep -rn "DEMO TOGGLE" Assets/_Project/Scripts`.
+- **Rubric markers** (PB-29): the exact spot each graded feature is implemented carries a one-line `// RUBRIC <id> · <item> (<marks>): …` comment (ids as in `docs/cheatsheets/04-rubric-cheatsheet.md`), so the PO can jump there in the demo: `grep -rn "RUBRIC" Assets/_Project/Scripts`. Keep them when refactoring.
 - Fail loudly: a runtime fallback for a missing reference must log a warning or error (PA1 lesson, ADR-0005).
 - `Assets/StreamingAssets/config.json` (Unity requires it at the Assets root) holds runtime tunables (ADR-0004): timer, scores, speeds, HP, damage, spell and heal rates. F5 reloads it.
 

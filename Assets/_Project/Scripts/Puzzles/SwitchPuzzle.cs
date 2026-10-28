@@ -38,6 +38,7 @@ namespace PuzzleMaster.Puzzles
                 if (s != null) s.Activated -= OnSwitchActivated;
         }
 
+        // RUBRIC 2a · Five puzzles (15): puzzle 3, solved when both pressure switches are stepped on.
         private void OnSwitchActivated(PressureSwitch _)
         {
             if (IsSolved) return;

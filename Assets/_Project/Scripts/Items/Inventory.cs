@@ -30,6 +30,7 @@ namespace PuzzleMaster.Items
 
         public int Count(ItemDefinition item) => item != null && counts.TryGetValue(item, out int n) ? n : 0;
 
+        // RUBRIC 1c · Item collection (10): the carried items, counted per item kind.
         public void Add(ItemDefinition item, int amount = 1)
         {
             if (item == null || amount <= 0) return;

@@ -19,16 +19,23 @@ namespace PuzzleMaster.Audio
         [SerializeField, OptionalReference] private AudioClip hitClip;
         [Tooltip("Player swings and hits nothing.")]
         [SerializeField, OptionalReference] private AudioClip swingClip;
+        [Tooltip("A monster heals itself (self-heal mode, ADR-0008).")]
         [SerializeField, OptionalReference] private AudioClip monsterHealClip;
+        [Tooltip("A monster reaches 0 HP and is recovered.")]
         [SerializeField, OptionalReference] private AudioClip monsterRecoveredClip;
+        [Tooltip("A monster casts a spell (only within Spell Hearing Range).")]
         [SerializeField, OptionalReference] private AudioClip spellCastClip;
+        [Tooltip("A spell hits the player.")]
         [SerializeField, OptionalReference] private AudioClip playerHitClip;
+        [Tooltip("The player picks up a puzzle item.")]
         [SerializeField, OptionalReference] private AudioClip pickupClip;
         [Tooltip("Item placed in a puzzle, switch pressed, gate opened.")]
         [SerializeField, OptionalReference] private AudioClip puzzleProgressClip;
+        [Tooltip("A puzzle is solved.")]
         [SerializeField, OptionalReference] private AudioClip puzzleSolvedClip;
 
         [Header("Mix")]
+        [Tooltip("Master volume of all sound effects (0–1).")]
         [SerializeField, Range(0f, 1f)] private float volume = 0.8f;
         [Tooltip("Spell casts from monsters farther than this are not played (avoids constant noise).")]
         [SerializeField] private float spellHearingRange = 20f;
@@ -84,6 +91,10 @@ namespace PuzzleMaster.Audio
 
         private void LateUpdate() => hitThisFrame = false;
 
+        // Handlers: one per GameEvents event. The second argument of Play is a relative volume:
+        // frequent sounds (swing, heal, spells) are quieter so the hit sound stays the clearest.
+
+        // RUBRIC 4b · Hit sound (5): PlayerAttack raises GameEvents.MonsterHit for each monster hit.
         private void OnMonsterHit(Vector3 _)
         {
             // Hitting two monsters in one swing plays one hit sound, not two stacked ones.

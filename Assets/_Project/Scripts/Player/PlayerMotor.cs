@@ -44,7 +44,7 @@ namespace PuzzleMaster.Player
         private float Speed => ConfigLoader.Current?.moveSpeed ?? moveSpeed;
         private float Sensitivity => ConfigLoader.Current?.mouseSensitivity ?? mouseSensitivity;
 
-        /// <summary>Current horizontal speed in m/s (for animation later).</summary>
+        /// <summary>Current horizontal speed in m/s (PlayerAnimator blends Idle / Walk / Run with it).</summary>
         public float CurrentSpeed => horizontalVelocity.magnitude;
 
         private void Awake()
@@ -68,6 +68,7 @@ namespace PuzzleMaster.Player
             }
         }
 
+        // RUBRIC 1a · Player movement (10): the mouse rotates the player (yaw = mouse X × sensitivity).
         private void Turn()
         {
             if (input.IsOrbitHeld) return;   // the mouse belongs to the orbit camera
@@ -76,6 +77,7 @@ namespace PuzzleMaster.Player
             transform.rotation = Quaternion.Euler(0f, yaw, 0f);
         }
 
+        // RUBRIC 1a · Player movement (10): WASD moves relative to the facing; CharacterController handles collisions.
         private void Move()
         {
             Vector2 wasd = input.Move;

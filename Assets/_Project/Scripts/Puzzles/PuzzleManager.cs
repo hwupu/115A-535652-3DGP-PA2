@@ -62,6 +62,7 @@ namespace PuzzleMaster.Puzzles
             }
         }
 
+        // RUBRIC 2b · Puzzle completion logic (10): +200 score, "x/5" message, all five solved → Win.
         private void OnPuzzleSolved(Puzzle puzzle)
         {
             int points = score != null ? score.SolvePuzzlePoints : 0;

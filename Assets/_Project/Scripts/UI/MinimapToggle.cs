@@ -33,6 +33,7 @@ namespace PuzzleMaster.UI
             if (input != null) input.ToggleMinimapPressed -= Toggle;
         }
 
+        // RUBRIC 5b · Minimap toggle (5): M shows / hides the minimap.
         private void Toggle() => SetVisible(panel == null || !panel.activeSelf);
 
         private void SetVisible(bool visible)

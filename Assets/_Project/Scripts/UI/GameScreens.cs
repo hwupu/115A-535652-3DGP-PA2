@@ -21,9 +21,13 @@ namespace PuzzleMaster.UI
         [SerializeField] private CountdownTimer timer;
 
         [Header("Panels")]
+        [Tooltip("Shown in Intro: title, story, controls, 'Press SPACE'.")]
         [SerializeField] private GameObject introPanel;
+        [Tooltip("Shown in Playing, and kept under the end panels.")]
         [SerializeField] private GameObject hudPanel;
+        [Tooltip("Shown in Won.")]
         [SerializeField] private GameObject winPanel;
+        [Tooltip("Shown in Lost (time's up).")]
         [SerializeField] private GameObject losePanel;
 
         [Header("End screen results")]
@@ -48,6 +52,7 @@ namespace PuzzleMaster.UI
             if (gameState != null) gameState.StateChanged -= Show;
         }
 
+        // RUBRIC 3a / 3e · Intro and win / lose screens (4 + 4): one panel per game state, plus the final score.
         private void Show(GameState state)
         {
             SetActive(introPanel, state == GameState.Intro);

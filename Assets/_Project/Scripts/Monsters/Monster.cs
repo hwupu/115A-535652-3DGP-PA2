@@ -26,6 +26,10 @@ namespace PuzzleMaster.Monsters
         private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
         private static readonly int EmissionColorId = Shader.PropertyToID("_EmissionColor");
 
+        // Thresholds compared with sqrMagnitude, so they are distances squared.
+        private const float ArriveDistanceSqr = 0.2f * 0.2f;      // waypoint reached within 0.2 m
+        private const float MinTurnDistanceSqr = 0.01f * 0.01f;   // closer than 1 cm: no direction to face
+
         [Header("Behaviour")]
         [Tooltip("Stationary, or Patrol between the waypoints below.")]
         [SerializeField] private MonsterMode mode = MonsterMode.Stationary;
@@ -66,7 +70,9 @@ namespace PuzzleMaster.Monsters
         [SerializeField, OptionalReference] private Material fadeMaterialTemplate;
 
         [Header("Feedback")]
+        [Tooltip("Flash colour when the player hits the monster.")]
         [SerializeField] private Color hitColor = new Color(1f, 0.25f, 0.25f);
+        [Tooltip("Flash colour when the monster heals itself.")]
         [SerializeField] private Color healColor = new Color(0.3f, 1f, 0.4f);
         [Tooltip("Seconds a hit / heal flash lasts.")]
         [SerializeField] private float flashDuration = 0.15f;
@@ -82,10 +88,10 @@ namespace PuzzleMaster.Monsters
         private bool floatStarted;
 
         public bool IsRecovered { get; private set; }
-        /// <summary>The item this monster drops (for the minimap / HUD later), or null.</summary>
-        public ItemDefinition Drop => drop;
 
         private float AggroRange => ConfigLoader.Current?.monsterAggroRange ?? aggroRange;
+
+        // ---------- Setup ----------
 
         private void Awake()
         {
@@ -124,11 +130,15 @@ namespace PuzzleMaster.Monsters
             health.Depleted -= Recover;
         }
 
+        // ---------- Behaviour: patrol, or face the player and cast ----------
+
+        // RUBRIC 1b · Monster attack / recovery (10): patrol or stand still; in aggro range, face the player and cast spells.
         private void Update()
         {
             UpdateFlash();
             if (IsRecovered) return;
 
+            // Squared distances: same comparison without the square root of a real distance.
             Health player = Health.PlayerInstance;
             bool inRange = player != null
                            && (player.transform.position - transform.position).sqrMagnitude <= AggroRange * AggroRange;
@@ -149,8 +159,8 @@ namespace PuzzleMaster.Monsters
             goal.y = transform.position.y;   // walk on the ground plane
             transform.position = Vector3.MoveTowards(transform.position, goal, patrolSpeed * Time.deltaTime);
             TurnTowards(goal);
-            if ((goal - transform.position).sqrMagnitude < 0.04f)
-                patrolIndex = (patrolIndex + 1) % patrolPoints.Length;
+            if ((goal - transform.position).sqrMagnitude < ArriveDistanceSqr)
+                patrolIndex = (patrolIndex + 1) % patrolPoints.Length;   // % wraps A → B → A → …
         }
 
         /// <summary>Turns around the vertical axis only, at most turnSpeed degrees per second.</summary>
@@ -158,10 +168,12 @@ namespace PuzzleMaster.Monsters
         {
             Vector3 direction = point - transform.position;
             direction.y = 0f;
-            if (direction.sqrMagnitude < 0.0001f) return;
+            if (direction.sqrMagnitude < MinTurnDistanceSqr) return;
             Quaternion goal = Quaternion.LookRotation(direction);
             transform.rotation = Quaternion.RotateTowards(transform.rotation, goal, turnSpeed * Time.deltaTime);
         }
+
+        // ---------- Hit / heal flash ----------
 
         private void OnHealthChanged(float delta)
         {
@@ -178,6 +190,10 @@ namespace PuzzleMaster.Monsters
             if (flashTimer <= 0f && !IsRecovered) ClearTint();
         }
 
+        // ---------- Recovery at 0 HP ----------
+
+        // RUBRIC 1b · Monster attack / recovery (10): Health.Depleted (0 HP) calls this. Recovered, not killed.
+        // RUBRIC 1c · Item collection (10): a recovered monster drops its puzzle item (Instantiate below).
         /// <summary>0 HP: purified instead of killed. Stops, changes colour, scores, drops its item.</summary>
         private void Recover()
         {
@@ -194,8 +210,11 @@ namespace PuzzleMaster.Monsters
                 Debug.LogError($"{drop.name} has no pickup prefab; nothing dropped.", drop);
                 return;
             }
+            // TransformPoint: the local offset (1.5 m in front) → a world position, whichever way it faces.
             Instantiate(drop.PickupPrefab, transform.TransformPoint(dropOffset), Quaternion.identity);
         }
+
+        // ---------- Float-away (RecoveredStyle.FloatAway, ADR-0014) ----------
 
         // Recover() returns early when there is no drop, so the float-away starts from its own callback.
         private void LateUpdate()
@@ -273,6 +292,8 @@ namespace PuzzleMaster.Monsters
             return fades;
         }
 
+        // ---------- Colours (MaterialPropertyBlock: shared materials stay untouched) ----------
+
         private void Tint(Color color)
         {
             foreach (Renderer r in renderers)
@@ -288,6 +309,8 @@ namespace PuzzleMaster.Monsters
         {
             foreach (Renderer r in renderers) r.SetPropertyBlock(null);   // back to the material's own colour
         }
+
+        // ---------- Editor helpers ----------
 
         // Scene view helper: aggro range (red) and patrol route (yellow) when the monster is selected.
         private void OnDrawGizmosSelected()

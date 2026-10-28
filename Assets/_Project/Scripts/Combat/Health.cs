@@ -56,6 +56,7 @@ namespace PuzzleMaster.Combat
             Changed?.Invoke(0f);
         }
 
+        // RUBRIC 1b · Monster attack / recovery (10): "lose health when attacked"; Depleted fires once at 0 HP.
         /// <summary>Removes HP; returns true if damage was applied (false when already depleted).</summary>
         public bool Damage(float amount)
         {

@@ -58,6 +58,7 @@ namespace PuzzleMaster.Cameras
             RenderSettings.fog = fogWasOn;   // restore for the next camera
         }
 
+        // RUBRIC 5a · Minimap (5): top-down orthographic camera over the player → RenderTexture in the HUD.
         // LateUpdate: follow the player after it has moved this frame.
         private void LateUpdate()
         {

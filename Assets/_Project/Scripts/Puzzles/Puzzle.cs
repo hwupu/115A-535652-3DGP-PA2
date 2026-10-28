@@ -26,8 +26,11 @@ namespace PuzzleMaster.Puzzles
         [Header("Status colours")]
         [Tooltip("Renderers tinted by state, e.g. the beacon orb and the minimap icon. May be empty.")]
         [SerializeField] private Renderer[] statusRenderers = new Renderer[0];
+        [Tooltip("Open and solvable now.")]
         [SerializeField] private Color unsolvedColor = new Color(1f, 0.7f, 0.1f);
+        [Tooltip("Not solvable yet (the Final Gate before puzzles 1–4).")]
         [SerializeField] private Color lockedColor = new Color(0.9f, 0.15f, 0.15f);
+        [Tooltip("Solved.")]
         [SerializeField] private Color solvedColor = new Color(0.25f, 1f, 0.35f);
 
         [Header("Opening (door, gate bars)")]
@@ -53,8 +56,13 @@ namespace PuzzleMaster.Puzzles
         private MaterialPropertyBlock block;
         private bool opened;
 
+        // ---------- Lifecycle ----------
+
         protected virtual void Start() => ShowStatusColour();
 
+        // ---------- API for subclasses (ItemSocketPuzzle, SwitchPuzzle, GatePuzzle) ----------
+
+        // RUBRIC 2b · Puzzle completion logic (10): every puzzle ends here exactly once → PuzzleManager counts it.
         /// <summary>Solves the puzzle once: colour, events (PuzzleManager → score / Win), sound.</summary>
         protected void MarkSolved()
         {
@@ -99,6 +107,8 @@ namespace PuzzleMaster.Puzzles
         /// <summary>The player's inventory if this collider belongs to the player, else null.</summary>
         protected static Inventory PlayerInventory(Collider other) => other.GetComponentInParent<Inventory>();
 
+        // ---------- Status colour ----------
+
         // A MaterialPropertyBlock tints per renderer without touching the shared material.
         private void ShowStatusColour()
         {
@@ -115,7 +125,9 @@ namespace PuzzleMaster.Puzzles
             }
         }
 
-        // Inspector ⋮ menu (Play Mode): skip a puzzle while testing the others.
+        // ---------- Debug (Inspector ⋮ menu) ----------
+
+        // Play Mode only: skip a puzzle while testing the others.
         [ContextMenu("Debug: Solve now")]
         internal void DebugSolve()
         {

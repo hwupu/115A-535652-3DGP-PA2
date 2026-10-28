@@ -18,3 +18,14 @@ After editing, return to Unity, wait for the recompile, then press Play. Both st
 2. **Heal once below 50 %:** swap the two lines, Play, hit a monster 3 times (100 → 25 HP): it heals once (+20, green flash, Console "healed itself") and never again. With the default line, it heals +20 every 10 s while damaged.
 
 Rates and amounts are in `config.json` (no recompile needed; F5 reloads).
+
+## Demo controls (no code change)
+Not toggles, but useful in the same demo (Sprint 4, PB-29):
+| Control | What it shows | Where |
+|---|---|---|
+| Hold **middle mouse** (or **Left Alt**) + move the mouse | Orbit the camera around the witch (show her front); release → glides back behind her. The player doesn't turn while orbiting | `Cameras/CameraRig.cs` → `UpdateLook`; `Player/PlayerMotor.cs` → `Turn`; input `Settings/PlayerControls` → Gameplay / OrbitHold (ADR-0007 amendment) |
+| `Systems/GameManager` ⋮ → *Debug: Win now* / *Debug: Lose now* | The end screens at once (use them while the intro is up: the cursor is free) | `Core/GameStateManager.cs` |
+| A puzzle site ⋮ → *Debug: Solve now*; `Systems/PuzzleManager` ⋮ → *Debug: Solve all except the last* | Skip to the final gate | `Puzzles/Puzzle.cs`, `Puzzles/PuzzleManager.cs` |
+| Edit `Assets/StreamingAssets/config.json`, press **F5** | Timer, scores, speeds, HP, damage, heal rates without recompiling | `Core/ConfigLoader.cs` |
+
+Where each graded feature is implemented: `grep -rn "RUBRIC" Assets/_Project/Scripts` (ids as in `docs/cheatsheets/04-rubric-cheatsheet.md`). Explanation material: `docs/cheatsheets/01…06`.

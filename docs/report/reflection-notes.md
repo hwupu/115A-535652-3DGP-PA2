@@ -40,6 +40,8 @@ Report outline: 1) Use of AI tools · 2) Adoption of Scrum · 3) Lessons (short)
 - (2026-10-27) Retro actions carried forward: "placeholders must explain themselves" (Sprint 2) became floating labels on every puzzle site in Sprint 3, after the same markers confused the PO a second time.
 - (2026-10-27) Pausing and resuming a sprint on the PO's word cost nothing because the backlog and sprint plan were the source of truth; the art detour (PB-26) was logged as "pulled forward" rather than silently mixed in.
 
+- (2026-10-28) Preparing for the oral demo is part of the product: PA1's cheat sheets were reused as a template, but every snippet was re-derived from PA2's own code (and the "change X" snippets compiled in a clone), and each graded feature got a `// RUBRIC` marker in the code, so explaining starts from `grep`, not from memory.
+
 ## User's self-reflection (to be written by the User)
 - What did I learn?
 - Where did AI help most, and where did it mislead me?

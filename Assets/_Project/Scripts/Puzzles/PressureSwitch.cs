@@ -19,7 +19,9 @@ namespace PuzzleMaster.Puzzles
         [SerializeField] private float pressDepth = 0.08f;
         [Tooltip("Renderer tinted off / on (usually the pad).")]
         [SerializeField, OptionalReference] private Renderer indicator;
+        [Tooltip("Indicator colour before the switch is pressed.")]
         [SerializeField] private Color offColor = new Color(0.9f, 0.15f, 0.15f);
+        [Tooltip("Indicator colour once the switch is pressed.")]
         [SerializeField] private Color onColor = new Color(0.25f, 1f, 0.35f);
 
         /// <summary>Raised once, when the switch is first stepped on.</summary>

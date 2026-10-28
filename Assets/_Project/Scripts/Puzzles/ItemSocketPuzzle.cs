@@ -38,12 +38,14 @@ namespace PuzzleMaster.Puzzles
             if (item == null) Debug.LogError($"{name}: {nameof(ItemSocketPuzzle)} has no item; it can't be solved.", this);
         }
 
+        // RUBRIC 2a · Five puzzles (15): puzzles 1, 2, 4 (Key door, Crystal altar ×3, Artifact pedestal). Items are used to solve.
         private void OnTriggerEnter(Collider other)
         {
             if (IsSolved || item == null) return;
             Inventory inventory = PlayerInventory(other);
             if (inventory == null) return;
 
+            // Take what the player has, but never more than the puzzle still needs.
             int take = Mathf.Min(inventory.Count(item), required - placed);
             if (take <= 0)
             {

@@ -45,6 +45,7 @@ namespace PuzzleMaster.Core
         /// <summary>Freezes the countdown at its current value.</summary>
         public void Stop() => IsRunning = false;
 
+        // RUBRIC 3c · Timer display (4): counts 5 minutes down; Expired → GameStateManager → Lost.
         private void Update()
         {
             if (!IsRunning) return;

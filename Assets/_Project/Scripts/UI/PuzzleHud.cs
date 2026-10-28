@@ -15,7 +15,9 @@ namespace PuzzleMaster.UI
         [SerializeField] private PuzzleManager manager;
         [Tooltip("Text that shows the list.")]
         [SerializeField] private TMP_Text text;
+        [Tooltip("Colour of a solved puzzle's line.")]
         [SerializeField] private Color solvedColor = new Color(0.4f, 1f, 0.45f);
+        [Tooltip("Colour of an unsolved puzzle's line.")]
         [SerializeField] private Color openColor = new Color(0.85f, 0.85f, 0.85f);
 
         private readonly StringBuilder builder = new StringBuilder();

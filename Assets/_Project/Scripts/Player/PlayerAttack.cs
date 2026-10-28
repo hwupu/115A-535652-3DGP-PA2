@@ -21,8 +21,11 @@ namespace PuzzleMaster.Player
         [SerializeField, OptionalReference] private Transform swingPivot;
 
         [Header("Fallbacks when no config.json is loaded")]
+        [Tooltip("Damage per hit (a 100 HP monster needs 4 hits).")]
         [SerializeField] private float damage = 25f;
+        [Tooltip("Reach of a swing in metres.")]
         [SerializeField] private float range = 2.5f;
+        [Tooltip("Minimum seconds between two swings.")]
         [SerializeField] private float cooldown = 0.5f;
 
         [Header("Shape")]
@@ -36,7 +39,10 @@ namespace PuzzleMaster.Player
         /// <summary>Raised on every swing that passes the cooldown (hit or miss), e.g. for the swing animation.</summary>
         public event System.Action Swung;
 
-        private readonly Collider[] overlaps = new Collider[32];
+        private const float TouchingDistanceSqr = 0.5f * 0.5f;   // closer than 0.5 m always hits, whatever the angle
+        private const float SweepAngle = 60f;                     // visual sweep goes from −60° to +60°
+
+        private readonly Collider[] overlaps = new Collider[32];   // reused every swing (NonAlloc: no garbage)
         private readonly HashSet<Health> hitThisSwing = new HashSet<Health>();
         private float nextSwingTime;
 
@@ -55,6 +61,7 @@ namespace PuzzleMaster.Player
             if (input != null) input.AttackPressed -= Swing;
         }
 
+        // RUBRIC 1b · Monster attack / recovery (10): the player's attack. LMB → OverlapSphere → cone filter → Health.Damage.
         private void Swing()
         {
             if (Time.time < nextSwingTime) return;
@@ -66,6 +73,7 @@ namespace PuzzleMaster.Player
             int hits = 0;
             for (int i = 0; i < count; i++)
             {
+                // The collider may sit on a child; Health is on the monster root. Identified by component, not tag.
                 var target = overlaps[i].GetComponentInParent<Health>();
                 if (target == null || target.Team != Team.Monster || target.IsDepleted || !hitThisSwing.Add(target)) continue;
                 if (!InCone(target.transform.position)) continue;
@@ -86,7 +94,8 @@ namespace PuzzleMaster.Player
         {
             Vector3 toTarget = point - transform.position;
             toTarget.y = 0f;
-            if (toTarget.sqrMagnitude < 0.25f) return true;   // touching: always hit
+            if (toTarget.sqrMagnitude < TouchingDistanceSqr) return true;
+            // Angle is 0…180° either side of forward, so half the cone width on each side.
             return Vector3.Angle(transform.forward, toTarget) <= coneAngle * 0.5f;
         }
 
@@ -95,7 +104,7 @@ namespace PuzzleMaster.Player
         {
             for (float t = 0f; t < swingDuration; t += Time.deltaTime)
             {
-                swingPivot.localRotation = Quaternion.Euler(0f, Mathf.Lerp(-60f, 60f, t / swingDuration), 0f);
+                swingPivot.localRotation = Quaternion.Euler(0f, Mathf.Lerp(-SweepAngle, SweepAngle, t / swingDuration), 0f);
                 yield return null;
             }
             swingPivot.localRotation = Quaternion.identity;

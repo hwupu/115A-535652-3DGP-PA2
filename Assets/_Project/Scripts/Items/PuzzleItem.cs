@@ -18,8 +18,11 @@ namespace PuzzleMaster.Items
         [SerializeField] private Transform visual;
 
         [Header("Idle motion")]
+        [Tooltip("Spin around the vertical axis, in degrees per second.")]
         [SerializeField] private float spinSpeed = 90f;
+        [Tooltip("How far the visual bobs up and down, in metres.")]
         [SerializeField] private float bobHeight = 0.15f;
+        [Tooltip("Bob speed (radians per second of the sine wave).")]
         [SerializeField] private float bobSpeed = 2f;
 
         private Vector3 visualStart;
@@ -44,6 +47,9 @@ namespace PuzzleMaster.Items
             visual.Rotate(0f, spinSpeed * Time.deltaTime, 0f, Space.World);
         }
 
+        // RUBRIC 1c · Item collection (10): walking into the dropped item puts it into the player's Inventory.
+        // Fires because the item's collider is a trigger and it has a (kinematic) Rigidbody;
+        // the player's CharacterController counts as the other collider.
         private void OnTriggerEnter(Collider other)
         {
             if (collected || item == null) return;

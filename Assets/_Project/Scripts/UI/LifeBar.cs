@@ -19,7 +19,9 @@ namespace PuzzleMaster.UI
         [Tooltip("The fill's Image, for the colour.")]
         [SerializeField] private Image fillImage;
 
+        [Tooltip("Fill colour at full health.")]
         [SerializeField] private Color fullColor = new Color(0.3f, 0.9f, 0.3f);
+        [Tooltip("Fill colour near 0 HP (blended in between).")]
         [SerializeField] private Color lowColor = new Color(0.95f, 0.2f, 0.2f);
 
         private Transform cameraTransform;
@@ -56,9 +58,11 @@ namespace PuzzleMaster.UI
             transform.rotation = cameraTransform.rotation;
         }
 
+        // RUBRIC 3d · Monster life bars (4): fill width = HP / max HP, green → red.
         private void Redraw(float _)
         {
             float value = health.Normalized;
+            // Pivot at the left edge, so scaling x shrinks the bar toward the left.
             if (fill != null) fill.localScale = new Vector3(value, 1f, 1f);
             if (fillImage != null) fillImage.color = Color.Lerp(lowColor, fullColor, value);
         }

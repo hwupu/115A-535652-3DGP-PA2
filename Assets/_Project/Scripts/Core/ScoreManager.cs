@@ -5,7 +5,7 @@ namespace PuzzleMaster.Core
 {
     /// <summary>
     /// Holds the score (PB-15). Listens to GameEvents.MonsterRecovered (+100 by default);
-    /// puzzles add +200 through <see cref="Add"/> in Sprint 3. Points come from config.json
+    /// PuzzleManager adds +200 per solved puzzle through <see cref="Add"/>. Points come from config.json
     /// (recoverMonsterScore, solvePuzzleScore) or the Inspector fallbacks.
     /// The HUD and the end screens listen to <see cref="Changed"/> or read <see cref="Score"/>.
     /// The score resets with the scene on restart.
@@ -13,7 +13,9 @@ namespace PuzzleMaster.Core
     public class ScoreManager : MonoBehaviour
     {
         [Header("Fallbacks when no config.json is loaded (spec examples)")]
+        [Tooltip("Points for recovering a monster (spec: +100).")]
         [SerializeField] private int recoverMonsterScore = 100;
+        [Tooltip("Points for solving a puzzle (spec: +200).")]
         [SerializeField] private int solvePuzzleScore = 200;
 
         /// <summary>Raised with the new total whenever points are added.</summary>
@@ -30,6 +32,7 @@ namespace PuzzleMaster.Core
 
         private void OnMonsterRecovered(Vector3 _) => Add(RecoverMonsterPoints, "monster recovered");
 
+        // RUBRIC 3b · Score display (4): the score (+100 per recovered monster, +200 per puzzle).
         /// <summary>Adds points (ignored if not positive) and announces the new total.</summary>
         public void Add(int points, string reason)
         {

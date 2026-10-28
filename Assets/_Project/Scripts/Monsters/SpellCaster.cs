@@ -17,12 +17,18 @@ namespace PuzzleMaster.Monsters
         [SerializeField, OptionalReference] private Transform castPoint;
 
         [Header("Fallbacks when no config.json is loaded")]
+        [Tooltip("Seconds between two spells.")]
         [SerializeField] private float interval = 2.5f;
+        [Tooltip("Spell flight speed in m/s.")]
         [SerializeField] private float speed = 8f;
+        [Tooltip("Damage per spell hit (the player's HP has no gameplay effect, ADR-0008).")]
         [SerializeField] private float damage = 10f;
 
         [Tooltip("Height above the target's feet to aim at (chest).")]
         [SerializeField] private float aimHeight = 1f;
+
+        private const float DefaultCastHeight = 1.4f;   // used when Cast Point is empty (roughly the hands)
+        private const float FirstDelayMin = 0.5f, FirstDelayMax = 1.2f;
 
         private float nextCastTime;
 
@@ -31,8 +37,9 @@ namespace PuzzleMaster.Monsters
         private float Damage => ConfigLoader.Current?.spellDamage ?? damage;
 
         // A short random first delay, so monsters that see the player together don't fire in sync.
-        private void OnEnable() => nextCastTime = Time.time + Random.Range(0.5f, 1.2f);
+        private void OnEnable() => nextCastTime = Time.time + Random.Range(FirstDelayMin, FirstDelayMax);
 
+        // RUBRIC 1b · Monster attack / recovery (10): monsters cast spell projectiles toward the player.
         /// <summary>Casts at <paramref name="target"/> if the interval has passed. Returns true if a spell was fired.</summary>
         public bool TryCast(Transform target)
         {
@@ -45,7 +52,7 @@ namespace PuzzleMaster.Monsters
             }
             nextCastTime = Time.time + Interval;
 
-            Vector3 origin = castPoint != null ? castPoint.position : transform.position + Vector3.up * 1.4f;
+            Vector3 origin = castPoint != null ? castPoint.position : transform.position + Vector3.up * DefaultCastHeight;
             Vector3 aim = target.position + Vector3.up * aimHeight;
             SpellProjectile spell = Instantiate(spellPrefab, origin, Quaternion.identity);
             spell.Launch(aim - origin, Speed, Damage, Team.Monster, transform);

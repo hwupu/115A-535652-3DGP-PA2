@@ -25,6 +25,7 @@ namespace PuzzleMaster.UI
         [SerializeField] private Color color = Color.white;
         [Tooltip("Optional: when this Health is depleted (monster recovered), use the colour below.")]
         [SerializeField, OptionalReference] private Health health;
+        [Tooltip("Icon colour once the Health above is depleted.")]
         [SerializeField] private Color depletedColor = new Color(1f, 0.95f, 0.75f);
 
         private void Awake()
@@ -60,6 +61,7 @@ namespace PuzzleMaster.UI
             }
         }
 
+        // RUBRIC 5a · Minimap (5): player / puzzle / monster icons on the Minimap layer (only the map camera sees them).
         // LateUpdate runs after the parent has moved this frame, so the icon snaps to its final
         // position before the minimap camera renders.
         private void LateUpdate()

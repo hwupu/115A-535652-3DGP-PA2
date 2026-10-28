@@ -40,6 +40,7 @@ namespace PuzzleMaster.Combat
         // Kinematic bodies are moved with MovePosition in FixedUpdate, so physics sees the movement.
         private void FixedUpdate() => body.MovePosition(body.position + velocity * Time.fixedDeltaTime);
 
+        // RUBRIC 1b · Monster attack / recovery (10): the spell damages the first Health of the other team it touches.
         private void OnTriggerEnter(Collider other)
         {
             if (owner != null && other.transform.IsChildOf(owner)) return;   // don't hit the caster
