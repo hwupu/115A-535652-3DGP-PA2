@@ -19,9 +19,9 @@ Source: `reference/3DGP_PA_02_Instruction.pdf`, marking scheme on p. 2 (the offi
 | | hit sound effects (player attacks monster) | 5 | §4 | PB-16 | ✅ | PO play-test 2026-10-27 (Sprint 2 Review); headless smoke test 15/15 |
 | 5 | **Minimap and game management** — minimap (player + puzzle locations) | 5 | §9 | PB-23 | ✅ | PO play-test 2026-10-27 (Sprint 3 Review); built-game smoke test 30/30 |
 | | toggle functionality (M) | 5 | §9 | PB-24 | ✅ | PO play-test 2026-10-27 (Sprint 3 Review); built-game smoke test 30/30 |
-| 6 | **Code quality** — readability, organisation, comments | 5 | – | PB-29 (all items, `CLAUDE.md` conventions) | ⬜ | |
+| 6 | **Code quality** — readability, organisation, comments | 5 | – | PB-29 (all items, `CLAUDE.md` conventions) | ✅ | PO accepted 2026-10-28 after the demo rehearsal; RUBRIC markers, tooltips, `Scripts/README.md`; clone compile 0 errors / 0 warnings |
 | | **Total** | **100** | | | | |
-| B | **Report PDF** (1–2 pages, ≥ 500 words, AI use, Scrum, asset credits) | +10 / −10 | Deliverables | PB-31 | ⬜ | |
+| B | **Report PDF** (1–2 pages, ≥ 500 words, AI use, Scrum, asset credits) | +10 / −10 | Deliverables | PB-31 | ✅ | `docs/report/Report_PA2_PuzzleMaster.pdf`: 2 pages, ~1,300 words, AI use, Scrum, reflection, credits; PO: "looking good" |
 
 ## Spec requirements without their own marks
 These still have to work, because the rubric items above depend on them or the spec states them.

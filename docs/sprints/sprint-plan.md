@@ -12,6 +12,7 @@ Deadline **2026-11-29** (E3). PO decisions: development starts the week of Nov 2
 | 5 — Buffer, Report & Submit | Nov 22 – Nov 29 | Final build, full rubric pass, report PDF, zip + scripts uploaded to E3 | PB-30, PB-31 | +10 % bonus |
 
 Status (2026-10-27): Sprints 0–2 done on Oct 27 (55 / 100 marks verified). Sprint 3 was paused by the PO ("we are ahead") while PB-26 art work (melee swing, Halloween assets) was pulled forward; **Sprint 3 resumed and was accepted the same day** (90 / 100 marks verified, feature complete). Sprint 4 (BGM, story, polish) is next.
+Status (2026-10-28, later): **Sprint 4 accepted; PB-26, PB-29, PB-30, PB-31 closed by the PO** (100 / 100 marks done, report delivered).
 Status (2026-10-28): **Sprint 4 started** (PO: "start sprint 4"). PB-25 music accepted by the PO the same day (**95 / 100 marks verified**; left: code quality 5).
 
 Notes

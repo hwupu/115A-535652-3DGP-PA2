@@ -8,10 +8,10 @@ Milestone: [Sprint 4 — Art, Audio & Polish](https://github.com/hwupu/115A-5356
 | ID | Issue | Item | Status |
 |---|---|---|---|
 | PB-25 | #26 | Background music: starts with gameplay (SPACE), loops, stops on Win / Lose | ✅ |
-| PB-26 | #27 | Theme and asset integration (PO; pulled forward in Sprint 3) | 🔄 |
+| PB-26 | #27 | Theme and asset integration (PO; pulled forward in Sprint 3) | ✅ |
 | PB-27 | #28 | Hero's Journey framing in the intro / win texts | ✅ |
 | PB-28 | #29 | Juice (on request by the PO) | ➖ dropped by the PO (no marks) |
-| PB-29 | #30 | Code quality and demo prep (doc comments, 0 warnings, cheat sheets, demo toggles) | 🔄 |
+| PB-29 | #30 | Code quality and demo prep (doc comments, 0 warnings, cheat sheets, demo toggles) | ✅ |
 
 ## Task breakdown
 **Claude**
@@ -35,3 +35,13 @@ Milestone: [Sprint 4 — Art, Audio & Polish](https://github.com/hwupu/115A-5356
 - **2026-10-28**: PO: "confirmed" → PB-27 done and the orbit camera accepted; the PO's Sprint 4 setup run (story texts, `Systems/Story`, `OrbitHold`) committed. Next: PB-29.
 - **2026-10-28**: PO: "do cheatsheets like PA1, add comments to help me explain during demo". PA1's six cheat sheets used as the template, rewritten for PA2's code (file + method references, no line numbers). Scene hierarchy for sheet 3 dumped from `Main.unity` in a clone, not recalled. 29 `// RUBRIC <id>` markers (ids = sheet 4) plus 2 "Spec control" comments (R, ESC) and 8 short "why" comments added (comments only, no logic change). Clone compile: 0 errors, 0 warnings from our scripts; every class already had an XML summary. The 7 "change X and show me" snippets of sheet 6 (sprint, jump, jump sound, spell-hit penalty, pickup points, chasing monsters, pause) applied together in the clone: 0 errors / 0 warnings.
 - **2026-10-28**: PO: "make the code readable, organized, and add comments" → code-quality pass on 15 scripts + `Scripts/README.md`; clone compile 0 errors / 0 warnings. Rubric 6 stays ⬜ until the PO's rehearsal and the final build check.
+- **2026-10-28**: PO: "we can close all four tickets" → PB-26, PB-29, PB-30 and PB-31 closed by the PO (#27, #30, #31, #32). Report placeholders filled (21 prompt-log entries; Sprint 4 accepted). Not run by the AI before closing: the final macOS build with its 0-warnings check and the build smoke run (the last clone compile of the scripts was 0 errors / 0 warnings).
+
+## Review (2026-10-28)
+- **Sprint goal met.** PO: "it is looking good" (report), "we can close all four tickets. cheers." Done: PB-25, PB-27, PB-29 (code quality, cheat sheets, rehearsal), PB-26 (theme, by the PO); PB-30 and PB-31 from the Sprint 5 buffer closed early by the PO. PB-28 dropped (no rubric marks).
+- Rubric: **100 / 100 marks** marked done, report bonus delivered (2 pages, ~1,300 words).
+
+## Retro (drafted by SM)
+- **Keep:** the reuse of PA1's tooling and lessons, which let Sprints 0–3 finish on the first day; writing demo material (cheat sheets, RUBRIC markers) straight from the code.
+- **Problem:** the plan assumed five-day sprints from November and had to be refined at every planning; a few tracking rows (backlog vs sprint file, board columns) drifted out of sync.
+- **Try:** before submitting, build once more and zip from that build's project state, so the zip matches what was verified.
