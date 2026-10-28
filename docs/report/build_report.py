@@ -19,7 +19,8 @@ CHROME = os.path.expanduser("~/Applications/Google Chrome.app/Contents/MacOS/Goo
 
 # (insert after this heading, image file, caption)
 FIGURES = [
-    # Filled in Sprint 5 (PB-31), e.g. ("1. Use of AI Tools", "game screenshot.png", "Gameplay …").
+    ("1. Use of AI Tools", "gameplay (cropped).png", "Gameplay: a ghost guardian with its life bar casts a spell at the witch; the HUD shows the timer, score, items and the five puzzles, and the minimap (M) shows the player, puzzle sites and monsters."),
+    ("2. Adoption of Scrum", "github project.png", "The GitHub Project board: one milestone per sprint, and one issue per backlog item (issue number = backlog item + 1)."),
 ]
 
 CSS = """

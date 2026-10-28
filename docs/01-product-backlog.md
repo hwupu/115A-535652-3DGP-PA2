@@ -38,7 +38,7 @@ This file is the source of truth. GitHub mirrors it: Issues + Milestones (one pe
 | PB-28 | [#29](https://github.com/hwupu/115A-535652-3DGP-PA2/issues/29) | **Juice**: hit flash, recovery effect, spell impact, camera shake | On request by the PO | quality | Could | Claude | 4 | ➖ dropped (PO 2026-10-28: not required) |
 | PB-29 | [#30](https://github.com/hwupu/115A-535652-3DGP-PA2/issues/30) | **Code quality and demo prep** | XML doc comments on every class; 0 warnings; cheat sheets in `docs/cheatsheets/` for explaining the code; `docs/guides/demo-toggles.md` complete | 5 | Must | Claude | 4 | ⬜ |
 | PB-30 | [#31](https://github.com/hwupu/115A-535652-3DGP-PA2/issues/31) | **Build and final rubric pass** | Every row in `00-requirements-traceability.md` verified; macOS build runs; ESC / R / M work in the build | – | Must | Both | 5 | ⬜ |
-| PB-31 | [#32](https://github.com/hwupu/115A-535652-3DGP-PA2/issues/32) | **Report PDF** | 1–2 pages, ≥ 500 words, screenshots, AI use, Scrum, reflection, asset credits; Claude drafts the AI + Scrum sections, the User writes the self-reflection | +10 % | Must | Both | 5 | ⬜ |
+| PB-31 | [#32](https://github.com/hwupu/115A-535652-3DGP-PA2/issues/32) | **Report PDF** | 1–2 pages, ≥ 500 words, screenshots, AI use, Scrum, reflection, asset credits; Claude drafts the AI + Scrum sections, the User writes the self-reflection | +10 % | Must | Both | 5 | 🔄 |
 | PB-32 | [#33](https://github.com/hwupu/115A-535652-3DGP-PA2/issues/33) | Player death as a lose condition | Not in the spec (lose = timer only). Available only as a `DEMO TOGGLE` inside PB-10 | – | Won't | – | – | ❌ |
 
 ## PO decisions log
